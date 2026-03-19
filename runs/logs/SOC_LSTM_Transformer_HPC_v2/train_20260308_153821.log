@@ -1,0 +1,14 @@
+2026-03-08 15:38:21,800 - __main__ - INFO - 🌱 随机种子已固定: 42
+2026-03-08 15:38:21,801 - __main__ - INFO - 💻 使用设备: cuda
+2026-03-08 15:38:21,820 - __main__ - INFO - 🚀 GPU: NVIDIA GeForce RTX 4090 | 显存: 25.26 GB
+2026-03-08 15:38:21,907 - __main__ - INFO - ✅ 数据加载完成: Train=4165, Val=893, Workers=8, PinMemory=True
+2026-03-08 15:38:22,111 - __main__ - INFO - 🤖 模型构建完成: 0.43 M 参数
+2026-03-08 15:38:22,112 - root - ERROR - ❌ 训练崩溃: name 'AdamW' is not defined
+Traceback (most recent call last):
+  File "/root/code/ev_soc_predict/src/lstm_transformer.py", line 446, in <module>
+    main()
+  File "/root/code/ev_soc_predict/src/lstm_transformer.py", line 280, in main
+    optimizer = AdamW(
+NameError: name 'AdamW' is not defined
+2026-03-08 15:38:22,112 - __main__ - ERROR - GPU 显存分配: 0.00 GB
+2026-03-08 15:38:22,112 - __main__ - ERROR - GPU 显存保留: 0.02 GB

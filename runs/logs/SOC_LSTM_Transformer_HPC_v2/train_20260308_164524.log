@@ -1,0 +1,133 @@
+2026-03-08 16:45:24,716 - __main__ - INFO - 🌱 随机种子已固定: 42
+2026-03-08 16:45:24,716 - __main__ - INFO - 💻 使用设备: cuda
+2026-03-08 16:45:24,733 - __main__ - INFO - 🚀 GPU: NVIDIA GeForce RTX 4090 | 显存: 25.26 GB
+2026-03-08 16:45:24,844 - __main__ - INFO - ✅ 数据加载完成: Train=7135, Val=2378, Workers=8, PinMemory=True
+2026-03-08 16:45:25,010 - __main__ - INFO - 🤖 模型构建完成: 0.43 M 参数
+2026-03-08 16:45:25,010 - __main__ - INFO - 📉 使用损失函数: Huber Loss (delta=1.0)
+2026-03-08 16:45:25,010 - __main__ - INFO - 📅 启用调度器: Cosine Warmup (Warmup=10 epochs)
+2026-03-08 16:45:25,010 - __main__ - INFO - ⚡ 已启用自动混合精度训练 (AMP)
+2026-03-08 16:45:25,010 - __main__ - INFO - 🚀 开始训练...
+2026-03-08 16:45:26,405 - __main__ - INFO - Epoch [1/300] LR: 0.00e+00 | Train Loss: 0.6140 | Val Loss: 0.7601 | MAE: 1.2047 | RMSE: 1.3504 | R²: -1.7561
+2026-03-08 16:45:26,430 - __main__ - INFO - 💾 已保存最佳模型 (R²=-1.7561)
+2026-03-08 16:45:27,109 - __main__ - INFO - Epoch [2/300] LR: 1.85e-06 | Train Loss: 0.5993 | Val Loss: 0.5444 | MAE: 0.9687 | RMSE: 1.1121 | R²: -0.8692
+2026-03-08 16:45:27,151 - __main__ - INFO - 💾 已保存最佳模型 (R²=-0.8692)
+2026-03-08 16:45:27,828 - __main__ - INFO - Epoch [3/300] LR: 3.70e-06 | Train Loss: 0.5484 | Val Loss: 0.3251 | MAE: 0.7141 | RMSE: 0.8576 | R²: -0.1117
+2026-03-08 16:45:27,871 - __main__ - INFO - 💾 已保存最佳模型 (R²=-0.1117)
+2026-03-08 16:45:28,563 - __main__ - INFO - Epoch [4/300] LR: 5.56e-06 | Train Loss: 0.4676 | Val Loss: 0.2171 | MAE: 0.5409 | RMSE: 0.7297 | R²: 0.1953
+2026-03-08 16:45:28,606 - __main__ - INFO - 💾 已保存最佳模型 (R²=0.1953)
+2026-03-08 16:45:29,306 - __main__ - INFO - Epoch [5/300] LR: 7.41e-06 | Train Loss: 0.4158 | Val Loss: 0.1920 | MAE: 0.4798 | RMSE: 0.6982 | R²: 0.2631
+2026-03-08 16:45:29,346 - __main__ - INFO - 💾 已保存最佳模型 (R²=0.2631)
+2026-03-08 16:45:30,028 - __main__ - INFO - Epoch [6/300] LR: 9.26e-06 | Train Loss: 0.3708 | Val Loss: 0.1805 | MAE: 0.4431 | RMSE: 0.6841 | R²: 0.2927
+2026-03-08 16:45:30,073 - __main__ - INFO - 💾 已保存最佳模型 (R²=0.2927)
+2026-03-08 16:45:30,760 - __main__ - INFO - Epoch [7/300] LR: 1.11e-05 | Train Loss: 0.3252 | Val Loss: 0.1526 | MAE: 0.4130 | RMSE: 0.6301 | R²: 0.3999
+2026-03-08 16:45:30,803 - __main__ - INFO - 💾 已保存最佳模型 (R²=0.3999)
+2026-03-08 16:45:31,485 - __main__ - INFO - Epoch [8/300] LR: 1.30e-05 | Train Loss: 0.2791 | Val Loss: 0.1541 | MAE: 0.3759 | RMSE: 0.6414 | R²: 0.3782
+2026-03-08 16:45:32,179 - __main__ - INFO - Epoch [9/300] LR: 1.48e-05 | Train Loss: 0.2469 | Val Loss: 0.1316 | MAE: 0.3367 | RMSE: 0.5985 | R²: 0.4586
+2026-03-08 16:45:32,226 - __main__ - INFO - 💾 已保存最佳模型 (R²=0.4586)
+2026-03-08 16:45:32,908 - __main__ - INFO - Epoch [10/300] LR: 1.67e-05 | Train Loss: 0.2261 | Val Loss: 0.1554 | MAE: 0.3714 | RMSE: 0.6476 | R²: 0.3661
+2026-03-08 16:45:33,595 - __main__ - INFO - Epoch [11/300] LR: 1.85e-05 | Train Loss: 0.2131 | Val Loss: 0.1174 | MAE: 0.3207 | RMSE: 0.5688 | R²: 0.5110
+2026-03-08 16:45:33,638 - __main__ - INFO - 💾 已保存最佳模型 (R²=0.5110)
+2026-03-08 16:45:34,321 - __main__ - INFO - Epoch [12/300] LR: 2.04e-05 | Train Loss: 0.1979 | Val Loss: 0.1169 | MAE: 0.3171 | RMSE: 0.5683 | R²: 0.5119
+2026-03-08 16:45:34,364 - __main__ - INFO - 💾 已保存最佳模型 (R²=0.5119)
+2026-03-08 16:45:35,032 - __main__ - INFO - Epoch [13/300] LR: 2.22e-05 | Train Loss: 0.1933 | Val Loss: 0.1290 | MAE: 0.3248 | RMSE: 0.5980 | R²: 0.4595
+2026-03-08 16:45:35,722 - __main__ - INFO - Epoch [14/300] LR: 2.41e-05 | Train Loss: 0.1841 | Val Loss: 0.1120 | MAE: 0.3058 | RMSE: 0.5600 | R²: 0.5261
+2026-03-08 16:45:35,765 - __main__ - INFO - 💾 已保存最佳模型 (R²=0.5261)
+2026-03-08 16:45:36,435 - __main__ - INFO - Epoch [15/300] LR: 2.59e-05 | Train Loss: 0.1766 | Val Loss: 0.1112 | MAE: 0.2963 | RMSE: 0.5602 | R²: 0.5257
+2026-03-08 16:45:36,476 - __main__ - INFO - 💾 已保存最佳模型 (R²=0.5257)
+2026-03-08 16:45:37,156 - __main__ - INFO - Epoch [16/300] LR: 2.78e-05 | Train Loss: 0.1694 | Val Loss: 0.1090 | MAE: 0.2963 | RMSE: 0.5548 | R²: 0.5348
+2026-03-08 16:45:37,197 - __main__ - INFO - 💾 已保存最佳模型 (R²=0.5348)
+2026-03-08 16:45:37,879 - __main__ - INFO - Epoch [17/300] LR: 2.96e-05 | Train Loss: 0.1633 | Val Loss: 0.1167 | MAE: 0.2988 | RMSE: 0.5741 | R²: 0.5019
+2026-03-08 16:45:38,566 - __main__ - INFO - Epoch [18/300] LR: 3.15e-05 | Train Loss: 0.1613 | Val Loss: 0.1119 | MAE: 0.2942 | RMSE: 0.5625 | R²: 0.5218
+2026-03-08 16:45:39,232 - __main__ - INFO - Epoch [19/300] LR: 3.33e-05 | Train Loss: 0.1533 | Val Loss: 0.1101 | MAE: 0.2885 | RMSE: 0.5591 | R²: 0.5276
+2026-03-08 16:45:39,927 - __main__ - INFO - Epoch [20/300] LR: 3.52e-05 | Train Loss: 0.1547 | Val Loss: 0.1139 | MAE: 0.2913 | RMSE: 0.5685 | R²: 0.5114
+2026-03-08 16:45:40,624 - __main__ - INFO - Epoch [21/300] LR: 3.70e-05 | Train Loss: 0.1490 | Val Loss: 0.1249 | MAE: 0.3177 | RMSE: 0.5923 | R²: 0.4699
+2026-03-08 16:45:41,301 - __main__ - INFO - Epoch [22/300] LR: 3.89e-05 | Train Loss: 0.1505 | Val Loss: 0.1318 | MAE: 0.3401 | RMSE: 0.6053 | R²: 0.4463
+2026-03-08 16:45:41,977 - __main__ - INFO - Epoch [23/300] LR: 4.07e-05 | Train Loss: 0.1430 | Val Loss: 0.1105 | MAE: 0.2819 | RMSE: 0.5615 | R²: 0.5235
+2026-03-08 16:45:42,666 - __main__ - INFO - Epoch [24/300] LR: 4.26e-05 | Train Loss: 0.1386 | Val Loss: 0.1081 | MAE: 0.2772 | RMSE: 0.5566 | R²: 0.5318
+2026-03-08 16:45:42,711 - __main__ - INFO - 💾 已保存最佳模型 (R²=0.5318)
+2026-03-08 16:45:43,382 - __main__ - INFO - Epoch [25/300] LR: 4.44e-05 | Train Loss: 0.1388 | Val Loss: 0.1034 | MAE: 0.2804 | RMSE: 0.5435 | R²: 0.5536
+2026-03-08 16:45:43,424 - __main__ - INFO - 💾 已保存最佳模型 (R²=0.5536)
+2026-03-08 16:45:44,093 - __main__ - INFO - Epoch [26/300] LR: 4.63e-05 | Train Loss: 0.1392 | Val Loss: 0.1101 | MAE: 0.2804 | RMSE: 0.5610 | R²: 0.5243
+2026-03-08 16:45:44,781 - __main__ - INFO - Epoch [27/300] LR: 4.81e-05 | Train Loss: 0.1362 | Val Loss: 0.1067 | MAE: 0.2725 | RMSE: 0.5539 | R²: 0.5364
+2026-03-08 16:45:45,464 - __main__ - INFO - Epoch [28/300] LR: 5.00e-05 | Train Loss: 0.1363 | Val Loss: 0.1008 | MAE: 0.2841 | RMSE: 0.5356 | R²: 0.5665
+2026-03-08 16:45:45,512 - __main__ - INFO - 💾 已保存最佳模型 (R²=0.5665)
+2026-03-08 16:45:46,194 - __main__ - INFO - Epoch [29/300] LR: 5.19e-05 | Train Loss: 0.1344 | Val Loss: 0.1037 | MAE: 0.2709 | RMSE: 0.5459 | R²: 0.5496
+2026-03-08 16:45:46,881 - __main__ - INFO - Epoch [30/300] LR: 5.37e-05 | Train Loss: 0.1312 | Val Loss: 0.1122 | MAE: 0.2805 | RMSE: 0.5659 | R²: 0.5161
+2026-03-08 16:45:47,559 - __main__ - INFO - Epoch [31/300] LR: 5.56e-05 | Train Loss: 0.1296 | Val Loss: 0.1069 | MAE: 0.2698 | RMSE: 0.5547 | R²: 0.5350
+2026-03-08 16:45:48,245 - __main__ - INFO - Epoch [32/300] LR: 5.74e-05 | Train Loss: 0.1307 | Val Loss: 0.1149 | MAE: 0.2891 | RMSE: 0.5723 | R²: 0.5050
+2026-03-08 16:45:48,925 - __main__ - INFO - Epoch [33/300] LR: 5.93e-05 | Train Loss: 0.1271 | Val Loss: 0.1149 | MAE: 0.2874 | RMSE: 0.5735 | R²: 0.5029
+2026-03-08 16:45:49,597 - __main__ - INFO - Epoch [34/300] LR: 6.11e-05 | Train Loss: 0.1289 | Val Loss: 0.1080 | MAE: 0.2717 | RMSE: 0.5572 | R²: 0.5308
+2026-03-08 16:45:50,256 - __main__ - INFO - Epoch [35/300] LR: 6.30e-05 | Train Loss: 0.1246 | Val Loss: 0.1023 | MAE: 0.2698 | RMSE: 0.5435 | R²: 0.5536
+2026-03-08 16:45:50,934 - __main__ - INFO - Epoch [36/300] LR: 6.48e-05 | Train Loss: 0.1266 | Val Loss: 0.1089 | MAE: 0.2713 | RMSE: 0.5599 | R²: 0.5262
+2026-03-08 16:45:51,629 - __main__ - INFO - Epoch [37/300] LR: 6.67e-05 | Train Loss: 0.1245 | Val Loss: 0.0972 | MAE: 0.2609 | RMSE: 0.5321 | R²: 0.5720
+2026-03-08 16:45:51,672 - __main__ - INFO - 💾 已保存最佳模型 (R²=0.5720)
+2026-03-08 16:45:52,338 - __main__ - INFO - Epoch [38/300] LR: 6.85e-05 | Train Loss: 0.1232 | Val Loss: 0.1027 | MAE: 0.2631 | RMSE: 0.5460 | R²: 0.5494
+2026-03-08 16:45:53,020 - __main__ - INFO - Epoch [39/300] LR: 7.04e-05 | Train Loss: 0.1247 | Val Loss: 0.1163 | MAE: 0.2945 | RMSE: 0.5769 | R²: 0.4969
+2026-03-08 16:45:53,681 - __main__ - INFO - Epoch [40/300] LR: 7.22e-05 | Train Loss: 0.1247 | Val Loss: 0.1073 | MAE: 0.2686 | RMSE: 0.5576 | R²: 0.5301
+2026-03-08 16:45:54,325 - __main__ - INFO - Epoch [41/300] LR: 7.41e-05 | Train Loss: 0.1215 | Val Loss: 0.1083 | MAE: 0.2762 | RMSE: 0.5579 | R²: 0.5295
+2026-03-08 16:45:55,006 - __main__ - INFO - Epoch [42/300] LR: 7.59e-05 | Train Loss: 0.1235 | Val Loss: 0.1018 | MAE: 0.2613 | RMSE: 0.5440 | R²: 0.5527
+2026-03-08 16:45:55,684 - __main__ - INFO - Epoch [43/300] LR: 7.78e-05 | Train Loss: 0.1229 | Val Loss: 0.1046 | MAE: 0.2798 | RMSE: 0.5477 | R²: 0.5467
+2026-03-08 16:45:56,361 - __main__ - INFO - Epoch [44/300] LR: 7.96e-05 | Train Loss: 0.1220 | Val Loss: 0.1026 | MAE: 0.2658 | RMSE: 0.5456 | R²: 0.5500
+2026-03-08 16:45:57,025 - __main__ - INFO - Epoch [45/300] LR: 8.15e-05 | Train Loss: 0.1209 | Val Loss: 0.1125 | MAE: 0.2798 | RMSE: 0.5673 | R²: 0.5136
+2026-03-08 16:45:57,710 - __main__ - INFO - Epoch [46/300] LR: 8.33e-05 | Train Loss: 0.1187 | Val Loss: 0.1060 | MAE: 0.2694 | RMSE: 0.5535 | R²: 0.5370
+2026-03-08 16:45:58,387 - __main__ - INFO - Epoch [47/300] LR: 8.52e-05 | Train Loss: 0.1182 | Val Loss: 0.1007 | MAE: 0.2649 | RMSE: 0.5402 | R²: 0.5589
+2026-03-08 16:45:59,069 - __main__ - INFO - Epoch [48/300] LR: 8.70e-05 | Train Loss: 0.1192 | Val Loss: 0.1071 | MAE: 0.2688 | RMSE: 0.5557 | R²: 0.5333
+2026-03-08 16:45:59,745 - __main__ - INFO - Epoch [49/300] LR: 8.89e-05 | Train Loss: 0.1201 | Val Loss: 0.1066 | MAE: 0.2839 | RMSE: 0.5521 | R²: 0.5393
+2026-03-08 16:46:00,420 - __main__ - INFO - Epoch [50/300] LR: 9.07e-05 | Train Loss: 0.1166 | Val Loss: 0.1191 | MAE: 0.2963 | RMSE: 0.5818 | R²: 0.4884
+2026-03-08 16:46:01,101 - __main__ - INFO - Epoch [51/300] LR: 9.26e-05 | Train Loss: 0.1182 | Val Loss: 0.1047 | MAE: 0.2758 | RMSE: 0.5484 | R²: 0.5455
+2026-03-08 16:46:01,780 - __main__ - INFO - Epoch [52/300] LR: 9.44e-05 | Train Loss: 0.1163 | Val Loss: 0.1147 | MAE: 0.2879 | RMSE: 0.5723 | R²: 0.5050
+2026-03-08 16:46:02,463 - __main__ - INFO - Epoch [53/300] LR: 9.63e-05 | Train Loss: 0.1176 | Val Loss: 0.1085 | MAE: 0.2717 | RMSE: 0.5591 | R²: 0.5275
+2026-03-08 16:46:03,149 - __main__ - INFO - Epoch [54/300] LR: 9.81e-05 | Train Loss: 0.1156 | Val Loss: 0.1185 | MAE: 0.2951 | RMSE: 0.5781 | R²: 0.4949
+2026-03-08 16:46:03,829 - __main__ - INFO - Epoch [55/300] LR: 1.00e-04 | Train Loss: 0.1159 | Val Loss: 0.1129 | MAE: 0.2833 | RMSE: 0.5677 | R²: 0.5128
+2026-03-08 16:46:04,512 - __main__ - INFO - Epoch [56/300] LR: 1.02e-04 | Train Loss: 0.1172 | Val Loss: 0.1055 | MAE: 0.2852 | RMSE: 0.5486 | R²: 0.5451
+2026-03-08 16:46:05,198 - __main__ - INFO - Epoch [57/300] LR: 1.04e-04 | Train Loss: 0.1154 | Val Loss: 0.1131 | MAE: 0.2833 | RMSE: 0.5673 | R²: 0.5137
+2026-03-08 16:46:05,869 - __main__ - INFO - Epoch [58/300] LR: 1.06e-04 | Train Loss: 0.1144 | Val Loss: 0.1231 | MAE: 0.3057 | RMSE: 0.5891 | R²: 0.4755
+2026-03-08 16:46:06,548 - __main__ - INFO - Epoch [59/300] LR: 1.07e-04 | Train Loss: 0.1151 | Val Loss: 0.1021 | MAE: 0.2659 | RMSE: 0.5437 | R²: 0.5533
+2026-03-08 16:46:07,224 - __main__ - INFO - Epoch [60/300] LR: 1.09e-04 | Train Loss: 0.1138 | Val Loss: 0.1137 | MAE: 0.2843 | RMSE: 0.5680 | R²: 0.5124
+2026-03-08 16:46:07,901 - __main__ - INFO - Epoch [61/300] LR: 1.11e-04 | Train Loss: 0.1153 | Val Loss: 0.1100 | MAE: 0.2773 | RMSE: 0.5600 | R²: 0.5260
+2026-03-08 16:46:08,580 - __main__ - INFO - Epoch [62/300] LR: 1.13e-04 | Train Loss: 0.1151 | Val Loss: 0.1213 | MAE: 0.2967 | RMSE: 0.5847 | R²: 0.4834
+2026-03-08 16:46:09,258 - __main__ - INFO - Epoch [63/300] LR: 1.15e-04 | Train Loss: 0.1133 | Val Loss: 0.1054 | MAE: 0.2684 | RMSE: 0.5507 | R²: 0.5416
+2026-03-08 16:46:09,942 - __main__ - INFO - Epoch [64/300] LR: 1.17e-04 | Train Loss: 0.1159 | Val Loss: 0.1061 | MAE: 0.2698 | RMSE: 0.5526 | R²: 0.5385
+2026-03-08 16:46:10,623 - __main__ - INFO - Epoch [65/300] LR: 1.19e-04 | Train Loss: 0.1138 | Val Loss: 0.1059 | MAE: 0.2808 | RMSE: 0.5501 | R²: 0.5427
+2026-03-08 16:46:11,299 - __main__ - INFO - Epoch [66/300] LR: 1.20e-04 | Train Loss: 0.1153 | Val Loss: 0.1029 | MAE: 0.2774 | RMSE: 0.5429 | R²: 0.5545
+2026-03-08 16:46:11,965 - __main__ - INFO - Epoch [67/300] LR: 1.22e-04 | Train Loss: 0.1147 | Val Loss: 0.1067 | MAE: 0.2857 | RMSE: 0.5510 | R²: 0.5412
+2026-03-08 16:46:12,660 - __main__ - INFO - Epoch [68/300] LR: 1.24e-04 | Train Loss: 0.1131 | Val Loss: 0.1070 | MAE: 0.2697 | RMSE: 0.5548 | R²: 0.5348
+2026-03-08 16:46:13,333 - __main__ - INFO - Epoch [69/300] LR: 1.26e-04 | Train Loss: 0.1130 | Val Loss: 0.1147 | MAE: 0.2820 | RMSE: 0.5700 | R²: 0.5090
+2026-03-08 16:46:14,011 - __main__ - INFO - Epoch [70/300] LR: 1.28e-04 | Train Loss: 0.1139 | Val Loss: 0.1241 | MAE: 0.3004 | RMSE: 0.5895 | R²: 0.4748
+2026-03-08 16:46:14,697 - __main__ - INFO - Epoch [71/300] LR: 1.30e-04 | Train Loss: 0.1148 | Val Loss: 0.1022 | MAE: 0.2818 | RMSE: 0.5403 | R²: 0.5587
+2026-03-08 16:46:15,369 - __main__ - INFO - Epoch [72/300] LR: 1.31e-04 | Train Loss: 0.1119 | Val Loss: 0.1203 | MAE: 0.3006 | RMSE: 0.5794 | R²: 0.4927
+2026-03-08 16:46:16,046 - __main__ - INFO - Epoch [73/300] LR: 1.33e-04 | Train Loss: 0.1106 | Val Loss: 0.0992 | MAE: 0.2759 | RMSE: 0.5349 | R²: 0.5676
+2026-03-08 16:46:16,721 - __main__ - INFO - Epoch [74/300] LR: 1.35e-04 | Train Loss: 0.1119 | Val Loss: 0.1091 | MAE: 0.2907 | RMSE: 0.5556 | R²: 0.5335
+2026-03-08 16:46:17,391 - __main__ - INFO - Epoch [75/300] LR: 1.37e-04 | Train Loss: 0.1090 | Val Loss: 0.1218 | MAE: 0.2981 | RMSE: 0.5851 | R²: 0.4825
+2026-03-08 16:46:18,067 - __main__ - INFO - Epoch [76/300] LR: 1.39e-04 | Train Loss: 0.1099 | Val Loss: 0.1121 | MAE: 0.2842 | RMSE: 0.5631 | R²: 0.5208
+2026-03-08 16:46:18,738 - __main__ - INFO - Epoch [77/300] LR: 1.41e-04 | Train Loss: 0.1081 | Val Loss: 0.1298 | MAE: 0.3179 | RMSE: 0.5973 | R²: 0.4608
+2026-03-08 16:46:19,413 - __main__ - INFO - Epoch [78/300] LR: 1.43e-04 | Train Loss: 0.1109 | Val Loss: 0.1059 | MAE: 0.2866 | RMSE: 0.5481 | R²: 0.5459
+2026-03-08 16:46:20,086 - __main__ - INFO - Epoch [79/300] LR: 1.44e-04 | Train Loss: 0.1128 | Val Loss: 0.1141 | MAE: 0.3071 | RMSE: 0.5632 | R²: 0.5206
+2026-03-08 16:46:20,751 - __main__ - INFO - Epoch [80/300] LR: 1.46e-04 | Train Loss: 0.1105 | Val Loss: 0.1179 | MAE: 0.3034 | RMSE: 0.5726 | R²: 0.5045
+2026-03-08 16:46:21,430 - __main__ - INFO - Epoch [81/300] LR: 1.48e-04 | Train Loss: 0.1104 | Val Loss: 0.1162 | MAE: 0.2883 | RMSE: 0.5716 | R²: 0.5062
+2026-03-08 16:46:22,105 - __main__ - INFO - Epoch [82/300] LR: 1.50e-04 | Train Loss: 0.1092 | Val Loss: 0.1078 | MAE: 0.2866 | RMSE: 0.5512 | R²: 0.5409
+2026-03-08 16:46:22,773 - __main__ - INFO - Epoch [83/300] LR: 1.52e-04 | Train Loss: 0.1100 | Val Loss: 0.1170 | MAE: 0.2863 | RMSE: 0.5731 | R²: 0.5036
+2026-03-08 16:46:23,443 - __main__ - INFO - Epoch [84/300] LR: 1.54e-04 | Train Loss: 0.1098 | Val Loss: 0.1213 | MAE: 0.2956 | RMSE: 0.5812 | R²: 0.4895
+2026-03-08 16:46:24,116 - __main__ - INFO - Epoch [85/300] LR: 1.56e-04 | Train Loss: 0.1094 | Val Loss: 0.1354 | MAE: 0.3263 | RMSE: 0.6086 | R²: 0.4403
+2026-03-08 16:46:24,782 - __main__ - INFO - Epoch [86/300] LR: 1.57e-04 | Train Loss: 0.1117 | Val Loss: 0.1072 | MAE: 0.2893 | RMSE: 0.5516 | R²: 0.5401
+2026-03-08 16:46:25,452 - __main__ - INFO - Epoch [87/300] LR: 1.59e-04 | Train Loss: 0.1100 | Val Loss: 0.1170 | MAE: 0.2867 | RMSE: 0.5729 | R²: 0.5039
+2026-03-08 16:46:26,124 - __main__ - INFO - Epoch [88/300] LR: 1.61e-04 | Train Loss: 0.1077 | Val Loss: 0.1308 | MAE: 0.3141 | RMSE: 0.5994 | R²: 0.4571
+2026-03-08 16:46:26,800 - __main__ - INFO - Epoch [89/300] LR: 1.63e-04 | Train Loss: 0.1078 | Val Loss: 0.1224 | MAE: 0.2989 | RMSE: 0.5831 | R²: 0.4861
+2026-03-08 16:46:27,470 - __main__ - INFO - Epoch [90/300] LR: 1.65e-04 | Train Loss: 0.1079 | Val Loss: 0.1037 | MAE: 0.2854 | RMSE: 0.5440 | R²: 0.5527
+2026-03-08 16:46:28,140 - __main__ - INFO - Epoch [91/300] LR: 1.67e-04 | Train Loss: 0.1070 | Val Loss: 0.1048 | MAE: 0.2744 | RMSE: 0.5470 | R²: 0.5477
+2026-03-08 16:46:28,805 - __main__ - INFO - Epoch [92/300] LR: 1.69e-04 | Train Loss: 0.1065 | Val Loss: 0.1153 | MAE: 0.2862 | RMSE: 0.5696 | R²: 0.5096
+2026-03-08 16:46:29,466 - __main__ - INFO - Epoch [93/300] LR: 1.70e-04 | Train Loss: 0.1056 | Val Loss: 0.1229 | MAE: 0.3000 | RMSE: 0.5842 | R²: 0.4842
+2026-03-08 16:46:30,128 - __main__ - INFO - Epoch [94/300] LR: 1.72e-04 | Train Loss: 0.1072 | Val Loss: 0.1011 | MAE: 0.2689 | RMSE: 0.5371 | R²: 0.5641
+2026-03-08 16:46:30,802 - __main__ - INFO - Epoch [95/300] LR: 1.74e-04 | Train Loss: 0.1047 | Val Loss: 0.1056 | MAE: 0.2874 | RMSE: 0.5472 | R²: 0.5474
+2026-03-08 16:46:31,486 - __main__ - INFO - Epoch [96/300] LR: 1.76e-04 | Train Loss: 0.1059 | Val Loss: 0.1025 | MAE: 0.2792 | RMSE: 0.5402 | R²: 0.5589
+2026-03-08 16:46:32,156 - __main__ - INFO - Epoch [97/300] LR: 1.78e-04 | Train Loss: 0.1054 | Val Loss: 0.1109 | MAE: 0.2785 | RMSE: 0.5588 | R²: 0.5281
+2026-03-08 16:46:32,157 - __main__ - INFO - ⏹️ 触发早停 (Patience=60)
+2026-03-08 16:46:32,157 - __main__ - INFO - ✅ 训练完成！总耗时: 1.12 分钟
+2026-03-08 16:46:32,159 - __main__ - INFO - 🧪 开始在测试集上评估...
+2026-03-08 16:46:32,199 - __main__ - INFO - 📥 已加载最佳模型权重 (Epoch 37)
+2026-03-08 16:46:32,375 - __main__ - INFO - 📊 === 最终测试结果 ===
+2026-03-08 16:46:32,375 - __main__ - INFO -    Loss: 0.0938
+2026-03-08 16:46:32,375 - __main__ - INFO -    MAE : 0.3307
+2026-03-08 16:46:32,375 - __main__ - INFO -    RMSE: 0.4381
+2026-03-08 16:46:32,375 - __main__ - INFO -    R²  : 0.6278
+2026-03-08 16:46:32,400 - __main__ - INFO - 📝 预测详情已保存至: /root/code/ev_soc_predict/runs/logs/SOC_LSTM_Transformer_HPC_v2/test_predictions.csv

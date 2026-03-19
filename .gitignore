@@ -1,0 +1,15 @@
+# 排除整个 data/raw 目录（存放数据集的文件夹，不上传）
+data/
+analysis_plots/
+
+# 可选：排除其他大文件/临时文件（按需添加）
+.csv          # 排除所有 CSV 文件（如果数据集是 CSV 格式）
+*.xlsx         # 排除 Excel 文件
+*.h5           # 排除模型权重文件
+.pth          # 排除 PyTorch 模型文件
+*.zip          # 排除压缩包
+*.rar          # 排除压缩包
+__pycache__/   # 排除 Python 缓存文件夹
+.log          # 排除日志文件
+.DS_Store      # 排除 Mac 系统文件
+.png

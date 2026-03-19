@@ -1,0 +1,19 @@
+2026-03-08 15:39:19,794 - __main__ - INFO - 🌱 随机种子已固定: 42
+2026-03-08 15:39:19,794 - __main__ - INFO - 💻 使用设备: cuda
+2026-03-08 15:39:19,830 - __main__ - INFO - 🚀 GPU: NVIDIA GeForce RTX 4090 | 显存: 25.26 GB
+2026-03-08 15:39:19,895 - __main__ - INFO - ✅ 数据加载完成: Train=4165, Val=893, Workers=8, PinMemory=True
+2026-03-08 15:39:20,083 - __main__ - INFO - 🤖 模型构建完成: 0.43 M 参数
+2026-03-08 15:39:20,083 - __main__ - INFO - 📉 使用损失函数: Huber Loss (delta=1.0)
+2026-03-08 15:39:20,083 - __main__ - INFO - 📅 启用调度器: Cosine Warmup (Warmup=10 epochs)
+2026-03-08 15:39:20,083 - __main__ - INFO - ⚡ 已启用自动混合精度训练 (AMP)
+2026-03-08 15:39:20,083 - __main__ - INFO - 🚀 开始训练...
+2026-03-08 15:39:21,180 - __main__ - INFO - Epoch [1/300] LR: 0.00e+00 | Train Loss: 0.6358 | Val Loss: 0.6543 | MAE: 1.0900 | RMSE: 1.2144 | R²: -1.4649
+2026-03-08 15:39:21,180 - root - ERROR - ❌ 训练崩溃: unsupported operand type(s) for -: 'float' and 'str'
+Traceback (most recent call last):
+  File "/root/code/ev_soc_predict/src/lstm_transformer.py", line 447, in <module>
+    main()
+  File "/root/code/ev_soc_predict/src/lstm_transformer.py", line 385, in main
+    if val_loss < best_val_loss - min_delta:
+TypeError: unsupported operand type(s) for -: 'float' and 'str'
+2026-03-08 15:39:21,181 - __main__ - ERROR - GPU 显存分配: 0.03 GB
+2026-03-08 15:39:21,181 - __main__ - ERROR - GPU 显存保留: 0.45 GB

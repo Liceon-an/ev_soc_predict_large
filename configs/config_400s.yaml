@@ -1,0 +1,82 @@
+# configs/config_400s.yaml
+# 实验基础配置
+experiment_name: "lstm_400"
+
+# =======================
+# 1. 数据预处理配置
+# =======================
+data_processing:
+  # 原始输入文件 (相对于 PROCESSED_DATA_DIR 或 ROOT_DIR/data/raw)
+  input_file: "aligned_data_refined_soc.csv"
+  
+  # 序列构建参数
+  sequence_length: 40   # 对应代码中的 seq_len
+  stride: 20            # 对应代码中的 stride
+  max_time_gap: 500    # 对应代码中的 max_gap (秒)
+  
+  # 列定义
+  time_col: "DATE"
+  label_col: "refined_soc"
+  
+  # 特征列表
+  feature_cols:
+    - "speed"
+    - "mileage"
+    - "total_volt"
+    - "total_current"
+    - "max_cell_volt"
+    - "min_cell_volt"
+    - "max_temp"
+    - "min_temp"
+    - "temperature_c"
+    - "relative_humidity"
+    - "visibility_km"
+    - "wind_speed_ms"
+
+  # 数据集分割比例 (仅在动态分割时生效，若加载现成 npz 则忽略)
+  split:
+    validation: 0.15
+    test: 0.15
+    # train = 1.0 - val - test
+
+# =======================
+# 2. 模型架构配置
+# =======================
+model:
+  hidden_size: 128       # 隐藏层神经元数 (原代码默认 64)
+  num_layers: 3         # LSTM 层数 (原代码默认 2)
+  dropout: 0.1          # 从 config 读取
+  input_size: null      # 运行时自动根据特征数量填充
+  output_size: 1        # 预测目标维度 (Delta SOC)
+
+# =======================
+# 3. 训练超参数配置
+# =======================
+training:
+  optimizer: "adam"
+  learning_rate: 0.0001
+  batch_size: 32
+  epochs: 108
+  patience: 30          # 早停耐心值 (原代码 10，这里稍微放宽以防震荡)
+  loss_function: "mae"  # 对应 nn.L1Loss()
+  
+  # 学习率调度器配置
+  scheduler:
+    type: "ReduceLROnPlateau"
+    factor: 0.5
+    patience: 5         # 学习率下降的耐心值
+
+# =======================
+# 4. 文件路径配置
+# (相对于 PROCESSED_DATA_DIR 或 ROOT_DIR)
+# =======================
+paths:
+  # 输入：预处理后的数据文件 (由预处理脚本生成)
+  processed_data_file: "lstm_400_data.npz"
+  processed_scaler_file: "lstm_400_scalers.pkl"
+  
+  # 输出：训练产物
+  model_save_name: "best_lstm_model.pth"
+  plot_save_name: "lstm_prediction_scatter.png"
+  csv_save_name: "lstm_predictions_detail.csv"
+  log_dir: "logs"

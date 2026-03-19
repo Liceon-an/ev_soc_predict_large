@@ -1,0 +1,11 @@
+2026-03-08 15:15:33,420 - __main__ - INFO - 随机种子已固定: 42
+2026-03-08 15:15:33,420 - __main__ - INFO - 使用设备: cuda
+2026-03-08 15:15:33,420 - root - ERROR - ❌ 训练过程中发生严重错误: 数据文件未找到: /root/code/ev_soc_predict/data/processed/lstm_400_data.npz
+Traceback (most recent call last):
+  File "src/lstm_transformer.py", line 389, in <module>
+    main()
+  File "src/lstm_transformer.py", line 243, in main
+    data = load_data_from_npz(data_path)
+  File "src/lstm_transformer.py", line 69, in load_data_from_npz
+    raise FileNotFoundError(f"数据文件未找到: {file_path}")
+FileNotFoundError: 数据文件未找到: /root/code/ev_soc_predict/data/processed/lstm_400_data.npz
