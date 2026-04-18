@@ -18,14 +18,6 @@ sys.path.insert(0, project_root)
 from configs.path_config import PROCESSED_DATA_DIR, ALIGNED_DATA_DIR, ROOT_DIR
 from configs.path_config import get_path
 
-# 导入特征工程模块
-try:
-    from src.FeatureEngineering.feature_engineer import FeatureEngineer
-    FEATURE_ENGINEERING_AVAILABLE = True
-except ImportError:
-    FEATURE_ENGINEERING_AVAILABLE = False
-    print("⚠️ 警告: 特征工程模块不可用，将使用原始特征")
-
 # =======================
 # 日志配置
 # =======================
@@ -66,28 +58,11 @@ class DatasetPreparator:
         
         self.exp_name = self.config.get('experiment_name', 'soc_model').replace(" ", "_")
         
-        # 特征工程配置
-        self.use_feature_engineering = False
-        self.feature_engineer = None
-        
-        if FEATURE_ENGINEERING_AVAILABLE:
-            fe_config = self.config.get('feature_engineering', {})
-            self.use_feature_engineering = fe_config.get('enabled', False)
-            
-            if self.use_feature_engineering:
-                logger.info("启用特征工程")
-                self.feature_engineer = FeatureEngineer(self.config)
-            else:
-                logger.info("特征工程已禁用，使用原始特征")
-        else:
-            logger.warning("特征工程模块不可用，使用原始特征")
-        
         logger.info(f"配置加载完成:")
         logger.info(f"  - 序列长度 (Time Window): {self.seq_len}s")
         logger.info(f"  - 步长: {self.stride}")
         logger.info(f"  - 输入文件: {self.input_file}")
         logger.info(f"  - 实验前缀: {self.exp_name}")
-        logger.info(f"  - 特征工程: {'启用' if self.use_feature_engineering else '禁用'}")
 
     def load_data(self):
         """加载数据并进行初步清洗"""
@@ -130,178 +105,180 @@ class DatasetPreparator:
         return df
 
     def create_sequences(self, df):
-        """构建时序样本，并过滤物理上不可能的异常跳变"""
-        logger.info(f"正在构建时序样本 (Window={self.seq_len}, Stride={self.stride})...")
+        """构建时序样本"""
+        logger.info(f"正在构建时序样本...")
+        logger.info(f"  - 窗口长度 (Window): {self.seq_len} 步")
+        logger.info(f"  - 采样步长 (Stride): {self.stride}")
+        logger.info(f"  - 最大允许时间间隙 (Max Gap): {self.max_gap} 秒")
+        logger.info(f"  - 最大允许 SOC 跳变 (Max Delta): {self.max_delta_soc}%")
         
-        # 转换为时间戳 (秒)
         timestamps = df[self.time_col].values.astype(np.datetime64).astype(np.int64) // 10**9
-        
-        # 应用特征工程（如果需要）
-        if self.use_feature_engineering and self.feature_engineer:
-            logger.info("应用特征工程...")
-            
-            # 拟合特征工程模型（计算速度阈值等）
-            self.feature_engineer.fit(df)
-            
-            # 获取所有特征名称
-            all_feature_names = self.feature_engineer.get_feature_names(self.feature_cols)
-            logger.info(f"特征工程后特征数量: {len(all_feature_names)}")
-            logger.info(f"新增特征: {set(all_feature_names) - set(self.feature_cols)}")
-        else:
-            all_feature_names = self.feature_cols
-        
-        # 提取特征和标签
-        if self.use_feature_engineering and self.feature_engineer:
-            # 对整个数据集应用特征工程
-            enhanced_df = self.feature_engineer.compute_features(df, is_sequence=False)
-            
-            # 确保所有需要的特征都存在
-            missing_features = set(all_feature_names) - set(enhanced_df.columns)
-            if missing_features:
-                logger.warning(f"特征工程后缺失特征: {missing_features}")
-                # 添加缺失的特征（用0填充）
-                for feature in missing_features:
-                    enhanced_df[feature] = 0.0
-            
-            # 提取特征矩阵
-            features = enhanced_df[all_feature_names].values
-        else:
-            # 使用原始特征
-            features = df[self.feature_cols].values
-        
+        features = df[self.feature_cols].values
         labels = df[self.label_col].values
-        
-        # 二次检查 NaN/Inf
-        if np.isnan(features).any() or np.isinf(features).any():
-            raise RuntimeError("特征数据中包含 NaN/Inf。")
-        if np.isnan(labels).any() or np.isinf(labels).any():
-            raise RuntimeError("标签数据中包含 NaN/Inf。")
         
         n_samples = len(df)
         X_list = []
         y_list = []
+        
         broken_windows = 0
         time_gap_filtered = 0
         outlier_filtered = 0
         
+        max_delta_info = {'val': -np.inf, 'start_idx': -1, 'time_span': 0}
+        min_delta_info = {'val': np.inf, 'start_idx': -1, 'time_span': 0}
+        
         limit = n_samples - self.seq_len
         
-        logger.info(f"开始构建样本，总行数: {n_samples}, 序列长度: {self.seq_len}, 步长: {self.stride}")
-        
+        logger.info(f"开始扫描数据 (总行数: {n_samples})...")
+
         for i in range(0, limit, self.stride):
             end_idx = i + self.seq_len
             
             if end_idx >= n_samples:
                 break
             
-            # 检查时间间隙
             time_span = timestamps[end_idx-1] - timestamps[i]
+            
             if time_span > self.max_gap:
                 time_gap_filtered += 1
                 continue
             
-            # 提取特征序列
-            x_seq = features[i : end_idx]
+            x_seq = features[i : end_idx] 
             
             try:
-                delta_soc = labels[end_idx-1] - labels[i]
+                start_soc = labels[i]
+                end_soc = labels[end_idx-1]
+                delta_soc = end_soc - start_soc
             except IndexError:
                 broken_windows += 1
                 continue
-            
-            # 过滤异常跳变
+
             if abs(delta_soc) > self.max_delta_soc:
                 outlier_filtered += 1
                 continue
-            
+
             if np.isnan(x_seq).any() or np.isnan(delta_soc):
                 broken_windows += 1
                 continue
+            
+            if delta_soc > max_delta_info['val']:
+                max_delta_info = {'val': delta_soc, 'start_idx': i, 'time_span': time_span}
+            if delta_soc < min_delta_info['val']:
+                min_delta_info = {'val': delta_soc, 'start_idx': i, 'time_span': time_span}
                 
             X_list.append(x_seq)
             y_list.append(delta_soc)
-        
-        if len(X_list) == 0:
-            raise ValueError("未生成任何有效样本。请检查 max_delta_soc 设置是否过小或数据源是否有问题。")
-        
-        logger.info(f"样本构建完成。")
-        logger.info(f"  - 有效样本: {len(X_list)}")
-        logger.info(f"  - 因时间断点 (> {self.max_gap}s) 丢弃: {time_gap_filtered}")
-        logger.info(f"  - 因 SOC 跳变异常 (> {self.max_delta_soc}%) 丢弃: {outlier_filtered}")
-        logger.info(f"  - 因数据问题(NaN/索引)丢弃: {broken_windows}")
-        
-        # 如果启用了特征工程，记录特征信息
-        if self.use_feature_engineering and self.feature_engineer:
-            logger.info(f"  - 使用特征数量: {len(all_feature_names)}")
-            logger.info(f"  - 特征维度: {len(X_list[0].shape) if len(X_list) > 0 else 0}")
-        
-        y_arr = np.array(y_list)
-        logger.info(f"  - 清洗后 Label 统计: Min={y_arr.min():.4f}, Max={y_arr.max():.4f}, Mean={y_arr.mean():.4f}, Std={y_arr.std():.4f}")
-        
-        return np.array(X_list), np.array(y_list), all_feature_names
-    
-    def split_and_normalize(self, X, y, feature_names=None):
-        """
-        数据集划分与标准化
-        
-        Args:
-            X: 特征数据
-            y: 标签数据
-            feature_names: 特征名称列表
             
-        Returns:
-            (X_train, X_val, X_test), (y_train, y_val, y_test), 标准化器
-        """
-        n_samples = len(X)
+        if len(X_list) == 0:
+            raise ValueError("❌ 未生成任何有效样本。请检查 max_time_gap 或 max_delta_soc 设置是否过严。")
+            
+        y_arr = np.array(y_list)
         
-        # 按时间顺序划分 (70% train, 15% val, 15% test)
-        train_end = int(n_samples * 0.7)
-        val_end = train_end + int(n_samples * 0.15)
+        logger.info("="*50)
+        logger.info("✅ 样本构建完成 - 统计报告")
+        logger.info("="*50)
+        logger.info(f"原始数据行数：{n_samples}")
+        logger.info(f"生成有效样本数：{len(X_list)}")
+        logger.info(f"  - 因时间断点 (> {self.max_gap}s) 丢弃：{time_gap_filtered}")
+        logger.info(f"  - 因 SOC 跳变异常 (> {self.max_delta_soc}%) 丢弃：{outlier_filtered}")
+        logger.info(f"  - 因数据缺失/错误 丢弃：{broken_windows}")
+        logger.info("-"*50)
+        logger.info("📈 处理后片段电量变化量 (Delta SOC) 分布分析:")
+        logger.info(f"  - 最小值 (Min): {y_arr.min():.6f} %")
+        logger.info(f"  - 最大值 (Max): {y_arr.max():.6f} %")
+        logger.info(f"  - 平均值 (Mean): {y_arr.mean():.6f} %")
+        logger.info(f"  - 标准差 (Std):  {y_arr.std():.6f} %")
+        logger.info(f"  - 中位数 (Median): {np.median(y_arr):.6f} %")
         
-        X_train, y_train = X[:train_end], y[:train_end]
-        X_val, y_val = X[train_end:val_end], y[train_end:val_end]
-        X_test, y_test = X[val_end:], y[val_end:]
+        threshold_dynamic = y_arr.std() * 2
+        dynamic_count = np.sum(np.abs(y_arr) > threshold_dynamic)
+        dynamic_ratio = dynamic_count / len(y_arr) * 100
         
-        logger.info(f"数据集划分 -> Train: {len(X_train)}, Val: {len(X_val)}, Test: {len(X_test)}")
+        logger.info(f"  - 剧烈变化样本 (|Δ| > {threshold_dynamic:.4f}%): {dynamic_count} 个 ({dynamic_ratio:.2f}%)")
+        logger.info("="*50)
+            
+        return np.array(X_list), np.array(y_list)
+
+    def _print_distribution_stats(self, name, data):
+        """辅助函数：打印单组数据的分布统计"""
+        data = np.array(data).flatten()
+        count = len(data)
+        mean_val = data.mean()
+        std_val = data.std()
+        min_val = data.min()
+        max_val = data.max()
         
-        # 打印数据分布统计
+        # 关键指标：接近 0 的比例 (会导致 MAPE 爆炸)
+        near_zero_thresh = 0.05 # 0.05% 阈值
+        near_zero_count = np.sum(np.abs(data) < near_zero_thresh)
+        near_zero_ratio = near_zero_count / count * 100
+        
+        # 关键指标：大变化比例
+        large_thresh = 0.5 # 0.5% 阈值，可根据实际情况调整
+        large_count = np.sum(np.abs(data) > large_thresh)
+        large_ratio = large_count / count * 100
+        
+        logger.info(f"{name:10s} | Count: {count:6d} | Mean: {mean_val:7.4f} | Std: {std_val:7.4f} | "
+                    f"Min: {min_val:7.4f} | Max: {max_val:7.4f} | "
+                    f"Near-Zero(<0.05%): {near_zero_ratio:5.1f}% | Large(>0.5%): {large_ratio:5.1f}%")
+        
+        return {
+            'mean': mean_val, 'std': std_val, 
+            'near_zero_ratio': near_zero_ratio, 'large_ratio': large_ratio
+        }
+
+    def split_and_normalize(self, X, y):
+        """按时间顺序切分并标准化 (新增分布检查 + 强制打乱)"""
+        n = len(X)
+        
+        # =======================
+        # 🔥 关键修复：随机打乱样本
+        # =======================
+        logger.info("⚠️ 检测到工况分布随时间变化显著，正在执行随机打乱 (Shuffle) 以混合工况...")
+        indices = np.arange(n)
+        np.random.seed(42)  # 固定种子保证可复现
+        np.random.shuffle(indices)
+        
+        X = X[indices]
+        y = y[indices]
+        logger.info("✅ 数据已打乱。")
+        # =======================
+        
+        train_cfg = self.config.get('model_training', {})
+        val_split = train_cfg.get('validation_split', 0.2)
+        test_split = train_cfg.get('test_split', 0.2)
+        
+        train_ratio = 1.0 - val_split - test_split
+        val_ratio = val_split
+        
+        t_end = int(n * train_ratio)
+        v_end = int(n * (train_ratio + val_ratio))
+        
+        if t_end == 0: t_end = 1
+        if v_end <= t_end: v_end = t_end + 1
+        if v_end >= n: v_end = n - 1
+        
+        # 切分 (此时已经是混合分布了)
+        X_train, X_val, X_test = X[:t_end], X[t_end:v_end], X[v_end:]
+        y_train, y_val, y_test = y[:t_end], y[t_end:v_end], y[v_end:]
+        
+        logger.info(f"数据切分: Train={len(X_train)}, Val={len(X_val)}, Test={len(X_test)}")
+        
+        # =======================
+        # 🚨 数据分布一致性检查
+        # =======================
+        logger.info("\n" + "="*60)
         logger.info("🚨 🚨 🚨 数据分布一致性检查 (原始标签 Delta SOC) 🚨 🚨 🚨")
         logger.info("="*60)
         
-        def print_distribution_stats(name, data):
-            if len(data) == 0:
-                logger.info(f"{name:10} | 无数据")
-                return None
-            
-            mean_val = np.mean(data)
-            std_val = np.std(data)
-            min_val = np.min(data)
-            max_val = np.max(data)
-            
-            # 计算近零样本比例 (|ΔSOC| < 0.05%)
-            near_zero = np.sum(np.abs(data) < 0.05) / len(data) * 100
-            
-            # 计算大变化样本比例 (|ΔSOC| > 0.5%)
-            large_change = np.sum(np.abs(data) > 0.5) / len(data) * 100
-            
-            logger.info(f"{name:10} | Count: {len(data):6d} | Mean: {mean_val:7.4f} | Std: {std_val:7.4f} | "
-                       f"Min: {min_val:7.4f} | Max: {max_val:7.4f} | "
-                       f"Near-Zero(<0.05%): {near_zero:5.1f}% | Large(>0.5%): {large_change:5.1f}%")
-            
-            return {
-                'mean': mean_val,
-                'std': std_val,
-                'near_zero_ratio': near_zero,
-                'large_ratio': large_change
-            }
-        
-        stats_train = print_distribution_stats("Train", y_train)
-        stats_val = print_distribution_stats("Val", y_val)
-        stats_test = print_distribution_stats("Test", y_test)
+        # 确保变量被正确赋值
+        stats_train = self._print_distribution_stats("Train", y_train)
+        stats_val   = self._print_distribution_stats("Val",   y_val)
+        stats_test  = self._print_distribution_stats("Test",  y_test)
         
         logger.info("-"*60)
         
-        # 自动诊断警告
+        # 自动诊断警告 (增加安全性检查，防止变量未定义)
         warnings_found = False
         
         if stats_train and stats_test:
@@ -347,8 +324,6 @@ class DatasetPreparator:
             
             if np.any(scaler.scale_ == 0):
                 logger.warning(f"{name} 中存在标准差为 0 的特征。")
-                # 将零标准差替换为1，避免除零错误
-                scaler.scale_[scaler.scale_ == 0] = 1.0
             
             t_flat = transform_data.reshape(-1, transform_data.shape[-1])
             t_flat = np.nan_to_num(t_flat, nan=0.0, posinf=1e6, neginf=-1e6)
@@ -369,23 +344,56 @@ class DatasetPreparator:
         y_val_n = label_scaler.transform(y_val.reshape(-1, 1)).flatten()
         y_test_n = label_scaler.transform(y_test.reshape(-1, 1)).flatten()
         
-        # 检查标准化结果
         for name, arr in [("X_train", X_train_n), ("y_train", y_train_n)]:
             if np.isnan(arr).any() or np.isinf(arr).any():
                 raise RuntimeError(f"致命错误：标准化后 {name} 仍包含 NaN/Inf!")
 
         logger.info("标准化完成。")
         
-        # 记录特征信息
-        if feature_names is not None:
-            logger.info(f"特征维度: {X_train_n.shape[-1]}")
-            logger.info(f"特征名称 ({len(feature_names)}个): {feature_names}")
+        return (X_train_n, X_val_n, X_test_n), \
+               (y_train_n, y_val_n, y_test_n), \
+               feat_scaler, label_scaler
+        
+        def safe_standardize(train_data, transform_data, name):
+            scaler = StandardScaler()
+            train_flat = train_data.reshape(-1, train_data.shape[-1])
+            train_flat = np.nan_to_num(train_flat, nan=0.0, posinf=1e6, neginf=-1e6)
+            
+            scaler.fit(train_flat)
+            
+            if np.any(scaler.scale_ == 0):
+                logger.warning(f"{name} 中存在标准差为 0 的特征。")
+            
+            t_flat = transform_data.reshape(-1, transform_data.shape[-1])
+            t_flat = np.nan_to_num(t_flat, nan=0.0, posinf=1e6, neginf=-1e6)
+            
+            transformed = scaler.transform(t_flat).reshape(transform_data.shape)
+            return transformed, scaler
+
+        X_train_n, feat_scaler = safe_standardize(X_train, X_train, "Features (Train)")
+        X_val_n, _ = safe_standardize(X_train, X_val, "Features (Val)")
+        X_test_n, _ = safe_standardize(X_train, X_test, "Features (Test)")
+        
+        # 标签标准化
+        label_scaler = StandardScaler()
+        y_train_safe = np.nan_to_num(y_train.reshape(-1, 1), nan=0.0, posinf=1e6, neginf=-1e6)
+        label_scaler.fit(y_train_safe)
+        
+        y_train_n = label_scaler.transform(y_train.reshape(-1, 1)).flatten()
+        y_val_n = label_scaler.transform(y_val.reshape(-1, 1)).flatten()
+        y_test_n = label_scaler.transform(y_test.reshape(-1, 1)).flatten()
+        
+        for name, arr in [("X_train", X_train_n), ("y_train", y_train_n)]:
+            if np.isnan(arr).any() or np.isinf(arr).any():
+                raise RuntimeError(f"致命错误：标准化后 {name} 仍包含 NaN/Inf!")
+
+        logger.info("标准化完成。")
         
         return (X_train_n, X_val_n, X_test_n), \
                (y_train_n, y_val_n, y_test_n), \
-               feat_scaler, label_scaler, feature_names
-        
-    def save_data(self, X_tuple, y_tuple, scalers, feature_names=None):
+               feat_scaler, label_scaler
+
+    def save_data(self, X_tuple, y_tuple, scalers):
         """保存为 npz 和 pkl"""
         PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
         
@@ -399,51 +407,27 @@ class DatasetPreparator:
         y_train, y_val, y_test = y_tuple
         feat_scaler, label_scaler = scalers
         
-        # 保存特征名称（如果提供）
-        extra_kwargs = {}
-        if feature_names is not None:
-            extra_kwargs['feature_names'] = np.array(feature_names, dtype=object)
-        
         np.savez(
             output_path,
             X_train=X_train, y_train=y_train,
             X_val=X_val, y_val=y_val,
-            X_test=X_test, y_test=y_test,
-            **extra_kwargs
+            X_test=X_test, y_test=y_test
         )
         
-        # 保存特征工程配置（如果使用）
-        scaler_data = {
-            'feature': feat_scaler,
-            'label': label_scaler
-        }
-        
-        if self.use_feature_engineering and self.feature_engineer:
-            scaler_data['feature_engineering_config'] = self.feature_engineer.get_config()
-        
-        joblib.dump(scaler_data, scaler_path)
+        joblib.dump({'feature': feat_scaler, 'label': label_scaler}, scaler_path)
         
         logger.info(f"✅ 数据已保存至：{output_path}")
         logger.info(f"✅ Scaler 已保存至：{scaler_path}")
-        
-        if feature_names is not None:
-            logger.info(f"✅ 特征名称已保存 ({len(feature_names)}个特征)")
         
         print(f"\n=== 预处理成功 ===")
         print(f"配置序列长度：{self.seq_len}s")
         print(f"输出文件：{data_filename}")
         print(f"输入形状 (Train): {X_train.shape}")
         print(f"输出形状 (Train): {y_train.shape}")
-        print(f"特征维度: {X_train.shape[-1]}")
         print(f"训练集 Label (标准化后) 均值：{y_train.mean():.4f}, 标准差：{y_train.std():.4f}")
-        
-        if self.use_feature_engineering:
-            print(f"特征工程: 启用")
-            if feature_names is not None:
-                print(f"特征数量: {len(feature_names)}")
 
 def main():
-    parser = argparse.ArgumentParser(description="SOC 数据预处理脚本 (支持特征工程)")
+    parser = argparse.ArgumentParser(description="SOC 数据预处理脚本 (支持多配置)")
     parser.add_argument('--config', type=str, default=None, 
                         help='YAML 配置文件路径')
     args = parser.parse_args()
@@ -468,13 +452,13 @@ def main():
     try:
         preparator = DatasetPreparator(config_path)
         df = preparator.load_data()
-        X, y, feature_names = preparator.create_sequences(df)
+        X, y = preparator.create_sequences(df)
         
-        # 执行分布检查
-        X_tuple, y_tuple, feat_scaler, label_scaler, feature_names = preparator.split_and_normalize(X, y, feature_names)
+        # 这里将执行分布检查
+        X_tuple, y_tuple, feat_scaler, label_scaler = preparator.split_and_normalize(X, y)
         
         scalers = (feat_scaler, label_scaler) 
-        preparator.save_data(X_tuple, y_tuple, scalers, feature_names)
+        preparator.save_data(X_tuple, y_tuple, scalers)
         
         logger.info("🎉 全部处理完成！")
         

@@ -1,7 +1,6 @@
 import os
 import sys
 import logging
-import argparse
 import numpy as np
 import torch
 from torch.utils.data import DataLoader, TensorDataset
@@ -29,50 +28,24 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def load_config(config_path=None):
-    """
-    加载配置文件
-    
-    Args:
-        config_path: 配置文件路径，如果为None则使用默认路径
-    """
-    if config_path is None:
-        # 默认配置文件
-        config_path = ROOT_DIR / "configs" / "config_400s.yaml"
-    else:
-        config_path = Path(config_path)
-        if not config_path.exists():
-            raise FileNotFoundError(f"配置文件不存在: {config_path}")
-    
-    logger.info(f"加载配置文件: {config_path}")
+def load_config():
+    config_path = ROOT_DIR / "configs" / "config_400s.yaml"
     with open(config_path, 'r', encoding='utf-8') as f:
-        config = yaml.safe_load(f)
-    
-    return config
+        return yaml.safe_load(f)
 
-def main(config_path=None):
-    """
-    主函数
-    
-    Args:
-        config_path: 配置文件路径
-    """
+def main():
     # 1. 加载配置
-    config = load_config(config_path)
+    config = load_config() # 加载的是上面新的 YAML 结构
     
     # 2. 构建路径 (使用新的 paths 键)
     data_path = PROCESSED_DATA_DIR / config['paths']['processed_data_file']
     scaler_path = PROCESSED_DATA_DIR / config['paths']['processed_scaler_file']
     model_save_path = ROOT_DIR / config['paths']['model_save_name']
     
-    logger.info(f"数据文件: {data_path}")
-    logger.info(f"Scaler文件: {scaler_path}")
-    logger.info(f"模型保存路径: {model_save_path}")
-    
     if not data_path.exists() or not scaler_path.exists():
         raise FileNotFoundError(f"数据或 Scaler 文件缺失。检查: {data_path}, {scaler_path}")
 
-    # 3. 加载数据
+    # 2. 加载数据
     logger.info("正在加载数据...")
     data = np.load(data_path)
     scalers = joblib.load(scaler_path)
@@ -82,10 +55,9 @@ def main(config_path=None):
     X_val, y_val = data['X_val'], data['y_val']
     X_test, y_test = data['X_test'], data['y_test']
     
-    logger.info(f"数据形状 -> Train: {X_train.shape}, Val: {X_val.shape}, Test: {X_test.shape}")
-    logger.info(f"样本数量 -> Train: {len(X_train)}, Val: {len(X_val)}, Test: {len(X_test)}")
+    logger.info(f"数据形状 -> Train: {X_train.shape}, Test: {X_test.shape}")
     
-    # 4. 准备 DataLoader
+    # 3. 准备 DataLoader
     DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     logger.info(f"使用设备: {DEVICE}")
     
@@ -97,7 +69,7 @@ def main(config_path=None):
     test_loader = DataLoader(TensorDataset(torch.FloatTensor(X_test), torch.FloatTensor(y_test)), 
                              batch_size=batch_size, shuffle=False)
     
-    # 5. 初始化模型
+    # 4. 初始化模型
     input_size = X_train.shape[2]
     model_cfg = config['model']
     
@@ -110,65 +82,49 @@ def main(config_path=None):
         dropout=model_cfg['dropout']
     ).to(DEVICE)
     
-    logger.info(f"模型架构: LSTM(input={input_size}, hidden={model_cfg['hidden_size']}, "
-                f"layers={model_cfg['num_layers']}, output={model_cfg['output_size']})")
-    
-    # 6. 执行训练
+    # 5. 执行训练
     train_config = {
         'epochs': config['training']['epochs'],
         'learning_rate': config['training']['learning_rate'],
         'patience': config['training']['patience']
     }
     
-    logger.info(f"训练配置: {train_config}")
-    
     trainer.train_model(model, train_loader, val_loader, train_config, DEVICE, model_save_path)
     
-    # 7. 最终评估
-    logger.info("\n" + "="*60)
-    logger.info("开始最终评估")
-    logger.info("="*60)
-    
+    # 6. 最终评估
+    logger.info("\n=== 开始最终评估 ===")
     model.load_state_dict(torch.load(model_save_path, map_location=DEVICE))
     results = evaluate_and_report(model, test_loader, label_scaler, DEVICE, phase_name="Test")
     
-    # 8. 可视化与保存结果
+    # 7. 可视化与保存结果
     try:
-        plot_predictions(
-            model, test_loader, label_scaler, DEVICE,
-            save_path=ROOT_DIR / config['paths']['plot_save_name'],
-            csv_path=ROOT_DIR / config['paths']['csv_save_name']
-        )
-        logger.info(f"可视化结果已保存: {config['paths']['plot_save_name']}")
-        logger.info(f"详细预测结果已保存: {config['paths']['csv_save_name']}")
+        # 绘图
+        plot_path = ROOT_DIR / config['paths']['plot_save_name']
+        plot_predictions(results['targets'], results['preds'], "LSTM", str(plot_path))
+        logger.info(f"✅ 散点图已保存: {plot_path}")
+        
+        # 保存 CSV 详情
+        pred_df = pd.DataFrame({
+            "true_delta_soc": results['targets'],
+            "pred_delta_soc": results['preds'],
+            "abs_error": np.abs(results['targets'] - results['preds']),
+            "rel_error_percent": np.where(
+                results['targets'] != 0, 
+                np.abs((results['targets'] - results['preds']) / results['targets']) * 100, 
+                np.nan
+            ),
+            "category": ["Significant (>=0.5%)" if abs(x) >= 0.5 else "Tiny (<0.5%)" for x in results['targets']]
+        })
+        
+        csv_path = ROOT_DIR / config['paths']['csv_save_name']
+        pred_df.to_csv(csv_path, index=False, float_format="%.6f")
+        logger.info(f"✅ 详细数据已保存: {csv_path}")
+        logger.info(f"\n数据预览:\n{pred_df.head().to_string()}")
+        
     except Exception as e:
-        logger.warning(f"可视化保存失败: {e}")
-    
-    logger.info("="*60)
-    logger.info("训练完成!")
-    logger.info("="*60)
-    
-    # 打印关键指标
-    print("\n" + "="*60)
-    print("训练结果摘要")
-    print("="*60)
-    print(f"实验名称: {config.get('experiment_name', 'N/A')}")
-    print(f"测试 MAE: {results.get('mae', 'N/A'):.4f}")
-    print(f"测试 RMSE: {results.get('rmse', 'N/A'):.4f}")
-    print(f"测试 R²: {results.get('r2', 'N/A'):.4f}")
-    if 'mape' in results:
-        print(f"测试 MAPE: {results.get('mape', 'N/A'):.2f}%")
-    print("="*60)
+        logger.error(f"❌ 后处理失败: {e}", exc_info=True)
+
+    logger.info("🎉 全部流程完成！")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="LSTM SOC预测模型训练")
-    parser.add_argument('--config', type=str, default=None,
-                        help='YAML配置文件路径 (默认: configs/config_400s.yaml)')
-    
-    args = parser.parse_args()
-    
-    try:
-        main(args.config)
-    except Exception as e:
-        logger.error(f"训练失败: {e}", exc_info=True)
-        sys.exit(1)
+    main()

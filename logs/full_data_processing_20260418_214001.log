@@ -1,0 +1,36 @@
+2026-04-18 21:40:01,828 - __main__ - INFO - ============================================================
+2026-04-18 21:40:01,828 - __main__ - INFO - 开始处理完整数据集
+2026-04-18 21:40:01,828 - __main__ - INFO - ============================================================
+2026-04-18 21:40:03,633 - __main__ - INFO - 加载配置文件: configs/config_enhanced.yaml
+2026-04-18 21:40:03,641 - __main__ - INFO - 创建增强预处理器...
+2026-04-18 21:40:03,641 - src.DataProcessing.continuity_detector - INFO - 连续段检测器初始化完成
+2026-04-18 21:40:03,641 - src.DataProcessing.continuity_detector - INFO - 最大时间间隔阈值: 500秒
+2026-04-18 21:40:03,641 - src.DataProcessing.continuity_detector - INFO - 时间列: DATE
+2026-04-18 21:40:03,641 - src.DataProcessing.continuity_detector - INFO - 启用状态: True
+2026-04-18 21:40:03,641 - src.DataProcessing.time_segment_splitter - INFO - 时间片段划分器初始化完成
+2026-04-18 21:40:03,641 - src.DataProcessing.time_segment_splitter - INFO - 核心序列长度: 40
+2026-04-18 21:40:03,641 - src.DataProcessing.time_segment_splitter - INFO - 上下文大小: 2
+2026-04-18 21:40:03,641 - src.DataProcessing.time_segment_splitter - INFO - 总序列长度: 44
+2026-04-18 21:40:03,642 - src.DataProcessing.time_segment_splitter - INFO - 滑动步长: 20
+2026-04-18 21:40:03,642 - src.DataProcessing.enhanced_preprocessor - INFO - 增强数据预处理器初始化完成
+2026-04-18 21:40:03,642 - src.DataProcessing.enhanced_preprocessor - INFO - 实验名称: lstm_enhanced_400s
+2026-04-18 21:40:03,642 - src.DataProcessing.enhanced_preprocessor - INFO - 处理模式: enhanced
+2026-04-18 21:40:03,642 - src.DataProcessing.enhanced_preprocessor - INFO - 特征工程: 启用
+2026-04-18 21:40:03,642 - __main__ - INFO - 加载完整数据: data/aligned/aligned_data_refined_soc.csv
+2026-04-18 21:40:03,642 - src.DataProcessing.enhanced_preprocessor - INFO - 加载数据: data/aligned/aligned_data_refined_soc.csv
+2026-04-18 21:40:04,149 - src.DataProcessing.enhanced_preprocessor - INFO - 数据加载成功，形状: (123785, 20)
+2026-04-18 21:40:04,149 - src.DataProcessing.enhanced_preprocessor - INFO - 数据列: ['DATE', 'speed', 'mileage', 'total_volt', 'total_current', 'max_cell_volt', 'min_cell_volt', 'max_temp', 'min_temp', 'standard_soc', 'temperature_c', 'relative_humidity', 'visibility_km', 'wind_speed_ms', 'time_diff', 'is_new_trip', 'trip_id', 'current_discharge', 'delta_q_ah', 'refined_soc']
+2026-04-18 21:40:04,150 - __main__ - INFO - 数据加载完成，耗时: 0.51秒
+2026-04-18 21:40:04,150 - __main__ - INFO - 数据形状: (123785, 20)
+2026-04-18 21:40:04,150 - __main__ - INFO - 开始数据处理流程...
+2026-04-18 21:40:04,150 - src.DataProcessing.enhanced_preprocessor - INFO - 开始增强数据处理流程...
+2026-04-18 21:40:04,150 - src.DataProcessing.enhanced_preprocessor - INFO - 准备数据...
+2026-04-18 21:40:04,434 - src.DataProcessing.enhanced_preprocessor - INFO - 时间间隔统计 - 最小值: 0.00s, 最大值: 689240.00s, 平均值: 182.15s
+2026-04-18 21:40:04,434 - src.DataProcessing.enhanced_preprocessor - INFO - 检测连续段...
+2026-04-18 21:40:04,940 - src.DataProcessing.continuity_detector - INFO - 检测到 610 个断点，划分出 611 个连续段
+2026-04-18 21:40:06,227 - src.DataProcessing.enhanced_preprocessor - INFO - 连续段统计: {'total_segments': 611, 'total_samples': 123785, 'max_time_gap_threshold': 500, 'min_segment_length': 10, 'max_segment_length': 1792, 'avg_segment_length': 202.59410801963995, 'median_segment_length': 112.0, 'min_time_span': 90.0, 'max_time_span': 18051.0, 'avg_time_span': 2129.885433715221, 'min_avg_time_gap': 11.053380782918149, 'max_avg_time_gap': 23097.363636363636, 'avg_time_gap': 615.0227195303091, 'long_segments_count': 325, 'short_segments_count': 286, 'long_segments_samples': 110910, 'short_segments_samples': 12875}
+2026-04-18 21:40:06,227 - src.DataProcessing.enhanced_preprocessor - INFO - 划分时间片段...
+2026-04-18 21:40:20,023 - src.DataProcessing.time_segment_splitter - INFO - 总共生成 5242 个片段
+2026-04-18 21:40:20,340 - src.DataProcessing.enhanced_preprocessor - INFO - 时间片段统计: {'total_segments': 5242, 'segment_length': 44, 'core_length': 40, 'context_size': 2, 'stride': 20, 'min_segment_length': 44, 'max_segment_length': 44, 'avg_segment_length': 44.0, 'max_time_gap': 689240.0, 'avg_time_gap': 80.06608771808123}
+2026-04-18 21:40:20,340 - src.DataProcessing.enhanced_preprocessor - INFO - 执行特征工程...
+2026-04-18 21:42:22,520 - __main__ - ERROR - 处理失败: setting an array element with a sequence. The requested array has an inhomogeneous shape after 2 dimensions. The detected shape was (5242, 1) + inhomogeneous part.
