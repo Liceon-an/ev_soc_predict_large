@@ -1,0 +1,51 @@
+{
+    "_comment": "特征计算配置 - 三段速度分类 + is_run 巡航判断",
+    "n_rows": null,
+    "drop_columns": ["max_cell_volt", "min_cell_volt", "max_temp", "min_temp"],
+    "judgment_configs": [
+        {
+            "column": "speed",
+            "thresholds": [40.26, 72.4],
+            "output_column": "speed_category",
+            "judgment_type": 3
+        },
+        {
+            "column": "speed",
+            "threshold": 0,
+            "output_column": "is_run",
+            "judgment_type": 1
+        }
+    ],
+
+    "diff_columns": ["speed", "mileage"],
+    "diff_n_config": {
+    "speed": 1,
+    "mileage": 20
+    },
+
+    "multiply_features": [
+        {
+            "columns": ["total_volt", "total_current"],
+            "output_column": "power"
+        }
+    ],
+    "window_sizes": [20],
+    "stat_configs": {
+        "mean": ["speed", "speed_diff", "temperature_c", "relative_humidity", "visibility_km", "wind_speed_ms"],
+        "std": ["speed"]
+    },
+    "proportion_configs": [
+        {
+            "column": "speed_category",
+            "target_values": [0, 1, 2],
+            "output_names": ["Low", "Mid", "High"],
+            "window_size": 20
+        },
+        {
+            "column": "is_run",
+            "target_values": [1],
+            "output_names": ["cruising_ratio"],
+            "window_size": 20
+        }
+    ]
+}

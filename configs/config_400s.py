@@ -11,8 +11,8 @@ class TimeSegmentConfig:
 
     # 时间片段参数
     CORE_STEPS = 40          # 核心时间步数
-    CONTEXT_STEPS = 1        # 上下文时间步数（前后各1）
-    TOTAL_STEPS = CORE_STEPS + 2 * CONTEXT_STEPS  # 总时间步数 = 42
+    CONTEXT_STEPS = 0        # 上下文时间步数（前后各1）
+    TOTAL_STEPS = 40
 
     # 时间参数（秒）
     TIME_RESOLUTION = 10     # 时间分辨率：10秒/步
@@ -24,7 +24,7 @@ class TimeSegmentConfig:
     STEP_SIZE = CORE_STEPS // 2  # 步长 = 核心的一半 = 20
 
     # 输入输出路径
-    INPUT_DATA_PATH = Path("data/aligned/aligned_data_refined_soc.csv")
+    INPUT_DATA_PATH = Path("data/processed/feature_data.csv")
     OUTPUT_DIR = Path("data/split")
     OUTPUT_FILE = OUTPUT_DIR / "origin_400s.npz"
 
@@ -32,11 +32,14 @@ class TimeSegmentConfig:
     TIME_COLUMN = "DATE"  # 时间列名
     REQUIRED_COLUMNS = [
         "DATE", "speed", "mileage", "total_volt", "total_current",
-        "max_cell_volt", "min_cell_volt", "max_temp", "min_temp",
-        "standard_soc", "temperature_c", "relative_humidity",
-        "visibility_km", "wind_speed_ms", "time_diff", "is_new_trip",
-        "trip_id", "current_discharge", "delta_q_ah", "refined_soc"
-    ]
+        "standard_soc", "temperature_c", "relative_humidity", "visibility_km", "wind_speed_ms",
+        "time_diff", "is_new_trip", "trip_id", "current_discharge", "delta_q_ah",
+        "refined_soc", "speed_category", "is_run", "speed_diff", "mileage_diff",
+        "power", "window_start", "window_end", "window_size",
+        "speed_window20_mean", "speed_diff_window20_mean", "temperature_c_window20_mean",
+        "relative_humidity_window20_mean", "visibility_km_window20_mean", "wind_speed_ms_window20_mean",
+        "speed_window20_std", "Low", "Mid", "High", "cruising_ratio"
+    ]# 35列
 
     # 处理参数
     CHUNK_SIZE = 10000  # 分批处理大小
