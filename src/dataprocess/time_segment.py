@@ -330,17 +330,29 @@ class TimeSegmentDivider:
 
 
 def main():
-    """主函数，用于测试"""
     import sys
+    import argparse
     sys.path.append(".")
 
+    parser = argparse.ArgumentParser(description="时间片段划分")
+    parser.add_argument("--window", type=str, default="400",
+                        help="窗口大小(秒)，如 200/400/600/800 (默认: 400)")
+    args = parser.parse_args()
+
     try:
-        from configs.config_400s import config
+        cfg_name = "config_{}s".format(args.window)
+        cfg_module = __import__("configs." + cfg_name, fromlist=["config"])
+        config = cfg_module.config
+    except ImportError:
+        try:
+            from configs.config_400s import config
+            print("未找到 {}，使用默认 400s".format(cfg_name))
+        except ImportError:
+            print("无法加载配置: configs.{}".format(cfg_name))
+            sys.exit(1)
 
-        # 创建划分器
+    try:
         divider = TimeSegmentDivider(config)
-
-        # 运行完整流程
         stats = divider.process()
 
         print("\n处理统计:")
@@ -348,7 +360,7 @@ def main():
             print(f"  {key}: {value}")
 
     except Exception as e:
-        logger.error(f"处理失败: {e}")
+        print(f"处理失败: {e}")
         raise
 
 

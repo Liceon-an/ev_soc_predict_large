@@ -38,8 +38,14 @@ FEATURE_COLUMNS = [
     "temperature_c_window20_mean", "relative_humidity_window20_mean",
     "visibility_km_window20_mean", "wind_speed_ms_window20_mean",
     "speed_window20_std",
-    "Low", "Mid", "High", "cruising_ratio"
+    "Low", "Mid", "High", "cruising_ratio",
+    "total_volt", "total_current", "power",
 ]
+
+# 保留原始值不做 Z-Score 归一化的特征（如 0~1 比例值）
+RAW_FEATURES = {"Low", "Mid", "High", "cruising_ratio"}
+# Z-Score 后做裁剪的特征: {列名: (下限, 上限)}
+CLIP_FEATURES = {"mileage_diff": (-5.0, 5.0)}
 
 N_DROP_FIRST = 2
 N_DROP_LAST = 2
@@ -87,8 +93,8 @@ def extract_features_and_labels(df, segment_indices):
         seg_data = df.iloc[rows]
 
         X[i] = seg_data[FEATURE_COLUMNS].values.astype(np.float32)
-        y_main[i] = seg_data["power"].sum()
-        y_aux[i] = seg_data["refined_soc"].iloc[0] - seg_data["refined_soc"].iloc[-1]
+        y_main[i] = seg_data["refined_soc"].iloc[0] - seg_data["refined_soc"].iloc[-1]
+        y_aux[i] = seg_data["power"].sum()
 
         if np.any(np.isnan(X[i])):
             nan_segments.append(i)
@@ -98,9 +104,9 @@ def extract_features_and_labels(df, segment_indices):
     else:
         logger.info("所有片段特征无 NaN")
 
-    logger.info("total_energy: mean=%.2f, std=%.2f, [%.2f, %.2f]",
+    logger.info("delta_soc(main): mean=%.4f, std=%.4f, [%.4f, %.4f]",
                 y_main.mean(), y_main.std(), y_main.min(), y_main.max())
-    logger.info("delta_soc:     mean=%.4f, std=%.4f, [%.4f, %.4f]",
+    logger.info("total_energy(aux): mean=%.2f, std=%.2f, [%.2f, %.2f]",
                 y_aux.mean(), y_aux.std(), y_aux.min(), y_aux.max())
 
     return X, y_main, y_aux
@@ -142,15 +148,37 @@ def compute_scaler(X_train):
     mean = np.mean(flat, axis=0)
     std = np.std(flat, axis=0)
     std = np.where(std < 1e-8, 1.0, std)
+    # RAW_FEATURES 跳过归一化: mean=0, std=1 → (X-0)/1 = X
     for i, col in enumerate(FEATURE_COLUMNS):
-        logger.info("  %s: mean=%.4f, std=%.4f", col, mean[i], std[i])
+        if col in RAW_FEATURES:
+            mean[i] = 0.0
+            std[i] = 1.0
+            logger.info("  %s: RAW (skip Z-score, keep original)", col)
+        else:
+            logger.info("  %s: Z-score  mean=%.4f, std=%.4f", col, mean[i], std[i])
     return mean, std
 
 
 def apply_scaler(splits, mean, std):
+    n_feat = len(FEATURE_COLUMNS)
     for name in splits:
-        splits[name]["X"] = (splits[name]["X"] - mean) / std
-    logger.info("Z-Score 标准化完成")
+        X = splits[name]["X"]
+        # 只对非 RAW_FEATURES 做 Z-Score
+        for i in range(n_feat):
+            col = FEATURE_COLUMNS[i]
+            if col not in RAW_FEATURES:
+                X[:, :, i] = (X[:, :, i] - mean[i]) / std[i]
+        # 对指定特征做裁剪
+        for col, (lo, hi) in CLIP_FEATURES.items():
+            i = FEATURE_COLUMNS.index(col)
+            before = X[:, :, i].copy()
+            clipped = np.clip(before, lo, hi)
+            n_clipped = np.sum(before != clipped)
+            if n_clipped > 0:
+                X[:, :, i] = clipped
+                logger.info("  %s clip [%.1f, %.1f]: %d values clipped (%.2f%%)",
+                            col, lo, hi, n_clipped, n_clipped / before.size * 100)
+    logger.info("Z-Score 标准化完成 (RAW_FEATURES skipped, CLIP_FEATURES applied)")
 
 
 def save_dataset(splits, mean, std, output_dir):
@@ -176,8 +204,25 @@ def save_dataset(splits, mean, std, output_dir):
 
 
 def main():
+    import argparse
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
-    from configs.config_400s import config
+
+    parser = argparse.ArgumentParser(description="构建数据集")
+    parser.add_argument("--window", type=str, default="400",
+                        help="窗口大小(秒)，如 200/400/600/800 (默认: 400)")
+    args = parser.parse_args()
+
+    try:
+        cfg_name = "config_{}s".format(args.window)
+        cfg_module = __import__("configs." + cfg_name, fromlist=["config"])
+        config = cfg_module.config
+    except ImportError:
+        try:
+            from configs.config_400s import config
+            logger.warning("未找到 %s，使用默认 400s", cfg_name)
+        except ImportError:
+            logger.error("无法加载配置: configs.%s", cfg_name)
+            sys.exit(1)
 
     logger.info("=" * 60)
     logger.info("构建数据集 | %ds 核心 | %d 步/片段", config.CORE_SECONDS, config.CORE_STEPS)
@@ -200,13 +245,10 @@ def main():
     logger.info("特征: %d 个", len(FEATURE_COLUMNS))
     for name in ["train", "val", "test"]:
         d = splits[name]
-        logger.info("  %5s: X=%s  y_main=[%8.2f, %8.2f]  y_aux=[%8.4f, %8.4f]",
+        logger.info("  %5s: X=%s  y_main(dSoc)=[%8.4f, %8.4f]  y_aux(eng)=[%8.2f, %8.2f]",
                     name,
                     str(d["X"].shape),
-                    d["y_main"].min(),
-                    d["y_main"].max(),
-                    d["y_aux"].min(),
-                    d["y_aux"].max())
+                    d["y_main"].min(), d["y_main"].max(), d["y_aux"].min(), d["y_aux"].max())
     logger.info("=" * 60)
 
 

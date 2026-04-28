@@ -1,0 +1,26 @@
+"""
+训练超参数配置
+"""
+
+
+class TrainConfig:
+    """训练超参数"""
+
+    seed = 42
+    epochs = 200
+    batch_size = 64
+    lr = 1e-3
+    weight_decay = 1e-5
+    lr_scheduler_factor = 0.5
+    lr_scheduler_patience = 5
+    early_stop_patience = 20
+    grad_clip_norm = 10.0
+
+    data_dir = "data/train/split_400s"
+    checkpoint_dir = "models"
+    log_dir = "logs"
+
+    device = "auto"  # "auto" | "cuda" | "cpu"
+
+
+train_config = TrainConfig()

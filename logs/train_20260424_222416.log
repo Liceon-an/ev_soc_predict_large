@@ -1,0 +1,85 @@
+04-24 22:24:16 | 训练日志: logs/train_20260424_222416.log
+04-24 22:24:16 | ============================================================
+04-24 22:24:16 | 开始训练 | 模型参数量: 1174018
+04-24 22:24:16 | ============================================================
+04-24 22:24:16 | Epochs=200 | Batch=64 | LR=0.001 | WD=1e-05 | Patience=20 | Clip=10.0
+04-24 22:24:16 | Device: cuda
+04-24 22:24:16 | ============================================================
+04-24 22:24:16 | Epoch   1/200 | Train Loss=1.3744 | Val MAE(main)=0.7131 | Val MAE(aux)=276031.9062 | LR=1.00e-03
+04-24 22:24:16 |   ✓ 新最佳模型保存 (MAE=0.7131)
+04-24 22:24:16 | Epoch   2/200 | Train Loss=0.5094 | Val MAE(main)=0.5358 | Val MAE(aux)=276031.9688 | LR=1.00e-03
+04-24 22:24:16 |   ✓ 新最佳模型保存 (MAE=0.5358)
+04-24 22:24:17 | Epoch   3/200 | Train Loss=0.4000 | Val MAE(main)=0.7456 | Val MAE(aux)=276031.9375 | LR=1.00e-03
+04-24 22:24:17 | Epoch   4/200 | Train Loss=0.3873 | Val MAE(main)=0.4120 | Val MAE(aux)=276031.9062 | LR=1.00e-03
+04-24 22:24:17 |   ✓ 新最佳模型保存 (MAE=0.4120)
+04-24 22:24:17 | Epoch   5/200 | Train Loss=0.2795 | Val MAE(main)=0.3835 | Val MAE(aux)=276031.9062 | LR=1.00e-03
+04-24 22:24:17 |   ✓ 新最佳模型保存 (MAE=0.3835)
+04-24 22:24:18 | Epoch   6/200 | Train Loss=0.2893 | Val MAE(main)=0.3148 | Val MAE(aux)=276031.9375 | LR=1.00e-03
+04-24 22:24:18 |   ✓ 新最佳模型保存 (MAE=0.3148)
+04-24 22:24:18 | Epoch   7/200 | Train Loss=0.2454 | Val MAE(main)=0.3133 | Val MAE(aux)=276031.9062 | LR=1.00e-03
+04-24 22:24:18 |   ✓ 新最佳模型保存 (MAE=0.3133)
+04-24 22:24:18 | Epoch   8/200 | Train Loss=0.2537 | Val MAE(main)=0.2600 | Val MAE(aux)=276032.0000 | LR=1.00e-03
+04-24 22:24:18 |   ✓ 新最佳模型保存 (MAE=0.2600)
+04-24 22:24:19 | Epoch   9/200 | Train Loss=0.2770 | Val MAE(main)=0.5241 | Val MAE(aux)=276032.1250 | LR=1.00e-03
+04-24 22:24:19 | Epoch  10/200 | Train Loss=0.2571 | Val MAE(main)=0.3032 | Val MAE(aux)=276032.1250 | LR=1.00e-03
+04-24 22:24:19 | Epoch  11/200 | Train Loss=0.2161 | Val MAE(main)=0.2371 | Val MAE(aux)=276032.1250 | LR=1.00e-03
+04-24 22:24:19 |   ✓ 新最佳模型保存 (MAE=0.2371)
+04-24 22:24:20 | Epoch  12/200 | Train Loss=0.2113 | Val MAE(main)=0.2530 | Val MAE(aux)=276032.1250 | LR=1.00e-03
+04-24 22:24:20 | Epoch  13/200 | Train Loss=0.1898 | Val MAE(main)=0.2416 | Val MAE(aux)=276032.1250 | LR=1.00e-03
+04-24 22:24:20 | Epoch  14/200 | Train Loss=0.2204 | Val MAE(main)=0.3434 | Val MAE(aux)=276032.1875 | LR=1.00e-03
+04-24 22:24:21 | Epoch  15/200 | Train Loss=0.1869 | Val MAE(main)=0.2479 | Val MAE(aux)=276032.1250 | LR=1.00e-03
+04-24 22:24:21 | Epoch  16/200 | Train Loss=0.2010 | Val MAE(main)=0.2517 | Val MAE(aux)=276032.2188 | LR=1.00e-03
+04-24 22:24:21 | Epoch  17/200 | Train Loss=0.2055 | Val MAE(main)=0.2336 | Val MAE(aux)=276032.2188 | LR=1.00e-03
+04-24 22:24:21 |   ✓ 新最佳模型保存 (MAE=0.2336)
+04-24 22:24:22 | Epoch  18/200 | Train Loss=0.1685 | Val MAE(main)=0.2518 | Val MAE(aux)=276032.2188 | LR=1.00e-03
+04-24 22:24:22 | Epoch  19/200 | Train Loss=0.1808 | Val MAE(main)=0.3367 | Val MAE(aux)=276032.2812 | LR=1.00e-03
+04-24 22:24:22 | Epoch  20/200 | Train Loss=0.1950 | Val MAE(main)=0.2943 | Val MAE(aux)=276032.2812 | LR=1.00e-03
+04-24 22:24:22 | Epoch  21/200 | Train Loss=0.1755 | Val MAE(main)=0.2192 | Val MAE(aux)=276032.2812 | LR=1.00e-03
+04-24 22:24:23 |   ✓ 新最佳模型保存 (MAE=0.2192)
+04-24 22:24:23 | Epoch  22/200 | Train Loss=0.1796 | Val MAE(main)=0.2417 | Val MAE(aux)=276032.2812 | LR=1.00e-03
+04-24 22:24:23 | Epoch  23/200 | Train Loss=0.1803 | Val MAE(main)=0.2254 | Val MAE(aux)=276032.2500 | LR=1.00e-03
+04-24 22:24:23 | Epoch  24/200 | Train Loss=0.1695 | Val MAE(main)=0.2550 | Val MAE(aux)=276032.2188 | LR=1.00e-03
+04-24 22:24:24 | Epoch  25/200 | Train Loss=0.1901 | Val MAE(main)=0.3242 | Val MAE(aux)=276032.2812 | LR=1.00e-03
+04-24 22:24:24 | Epoch  26/200 | Train Loss=0.2050 | Val MAE(main)=0.3096 | Val MAE(aux)=276032.3125 | LR=1.00e-03
+04-24 22:24:24 | Epoch  27/200 | Train Loss=0.1867 | Val MAE(main)=0.2801 | Val MAE(aux)=276032.3125 | LR=5.00e-04
+04-24 22:24:25 | Epoch  28/200 | Train Loss=0.1637 | Val MAE(main)=0.2202 | Val MAE(aux)=276032.3125 | LR=5.00e-04
+04-24 22:24:25 | Epoch  29/200 | Train Loss=0.1565 | Val MAE(main)=0.2291 | Val MAE(aux)=276032.3438 | LR=5.00e-04
+04-24 22:24:25 | Epoch  30/200 | Train Loss=0.1403 | Val MAE(main)=0.2085 | Val MAE(aux)=276032.3125 | LR=5.00e-04
+04-24 22:24:25 |   ✓ 新最佳模型保存 (MAE=0.2085)
+04-24 22:24:25 | Epoch  31/200 | Train Loss=0.1400 | Val MAE(main)=0.2115 | Val MAE(aux)=276032.3438 | LR=5.00e-04
+04-24 22:24:26 | Epoch  32/200 | Train Loss=0.1466 | Val MAE(main)=0.2200 | Val MAE(aux)=276032.3438 | LR=5.00e-04
+04-24 22:24:26 | Epoch  33/200 | Train Loss=0.1442 | Val MAE(main)=0.2565 | Val MAE(aux)=276032.3750 | LR=5.00e-04
+04-24 22:24:26 | Epoch  34/200 | Train Loss=0.1447 | Val MAE(main)=0.2263 | Val MAE(aux)=276032.3438 | LR=5.00e-04
+04-24 22:24:27 | Epoch  35/200 | Train Loss=0.1515 | Val MAE(main)=0.2913 | Val MAE(aux)=276032.3750 | LR=5.00e-04
+04-24 22:24:27 | Epoch  36/200 | Train Loss=0.1420 | Val MAE(main)=0.2163 | Val MAE(aux)=276032.3438 | LR=2.50e-04
+04-24 22:24:27 | Epoch  37/200 | Train Loss=0.1469 | Val MAE(main)=0.1965 | Val MAE(aux)=276032.3438 | LR=2.50e-04
+04-24 22:24:27 |   ✓ 新最佳模型保存 (MAE=0.1965)
+04-24 22:24:28 | Epoch  38/200 | Train Loss=0.1314 | Val MAE(main)=0.2108 | Val MAE(aux)=276032.3750 | LR=2.50e-04
+04-24 22:24:28 | Epoch  39/200 | Train Loss=0.1250 | Val MAE(main)=0.2590 | Val MAE(aux)=276032.3750 | LR=2.50e-04
+04-24 22:24:28 | Epoch  40/200 | Train Loss=0.1224 | Val MAE(main)=0.2438 | Val MAE(aux)=276032.3438 | LR=2.50e-04
+04-24 22:24:29 | Epoch  41/200 | Train Loss=0.1181 | Val MAE(main)=0.2305 | Val MAE(aux)=276032.3750 | LR=2.50e-04
+04-24 22:24:29 | Epoch  42/200 | Train Loss=0.1163 | Val MAE(main)=0.2141 | Val MAE(aux)=276032.3438 | LR=2.50e-04
+04-24 22:24:29 | Epoch  43/200 | Train Loss=0.1177 | Val MAE(main)=0.2338 | Val MAE(aux)=276032.3438 | LR=1.25e-04
+04-24 22:24:29 | Epoch  44/200 | Train Loss=0.1076 | Val MAE(main)=0.2153 | Val MAE(aux)=276032.3438 | LR=1.25e-04
+04-24 22:24:30 | Epoch  45/200 | Train Loss=0.1071 | Val MAE(main)=0.2290 | Val MAE(aux)=276032.3438 | LR=1.25e-04
+04-24 22:24:30 | Epoch  46/200 | Train Loss=0.1076 | Val MAE(main)=0.2568 | Val MAE(aux)=276032.3438 | LR=1.25e-04
+04-24 22:24:30 | Epoch  47/200 | Train Loss=0.1171 | Val MAE(main)=0.2392 | Val MAE(aux)=276032.3438 | LR=1.25e-04
+04-24 22:24:31 | Epoch  48/200 | Train Loss=0.1112 | Val MAE(main)=0.2253 | Val MAE(aux)=276032.3438 | LR=1.25e-04
+04-24 22:24:31 | Epoch  49/200 | Train Loss=0.1053 | Val MAE(main)=0.2147 | Val MAE(aux)=276032.3438 | LR=6.25e-05
+04-24 22:24:31 | Epoch  50/200 | Train Loss=0.1017 | Val MAE(main)=0.2310 | Val MAE(aux)=276032.3438 | LR=6.25e-05
+04-24 22:24:32 | Epoch  51/200 | Train Loss=0.0998 | Val MAE(main)=0.2210 | Val MAE(aux)=276032.3438 | LR=6.25e-05
+04-24 22:24:32 | Epoch  52/200 | Train Loss=0.0979 | Val MAE(main)=0.2234 | Val MAE(aux)=276032.3438 | LR=6.25e-05
+04-24 22:24:32 | Epoch  53/200 | Train Loss=0.1015 | Val MAE(main)=0.2288 | Val MAE(aux)=276032.3438 | LR=6.25e-05
+04-24 22:24:33 | Epoch  54/200 | Train Loss=0.0989 | Val MAE(main)=0.2247 | Val MAE(aux)=276032.3438 | LR=6.25e-05
+04-24 22:24:33 | Epoch  55/200 | Train Loss=0.0997 | Val MAE(main)=0.2242 | Val MAE(aux)=276032.3438 | LR=3.13e-05
+04-24 22:24:33 | Epoch  56/200 | Train Loss=0.0980 | Val MAE(main)=0.2220 | Val MAE(aux)=276032.3438 | LR=3.13e-05
+04-24 22:24:34 | Epoch  57/200 | Train Loss=0.0962 | Val MAE(main)=0.2199 | Val MAE(aux)=276032.3438 | LR=3.13e-05
+04-24 22:24:34 |   ⏹ 早停触发，连续 20 轮未改善
+04-24 22:24:34 | ============================================================
+04-24 22:24:34 | 训练结束 | 最佳轮次: 37 | 最佳 Val MAE: 0.1965
+04-24 22:24:34 | ============================================================
+04-24 22:24:34 | 已加载最佳模型 (Epoch 37, Val MAE=0.1965)
+04-24 22:24:34 | 
+========== Test 集最终评估 ==========
+04-24 22:24:34 |   ΔSoC(main) | MAE=0.2526 | RMSE=0.3904 | R²=0.9227 | MAPE=18.24%
+04-24 22:24:34 |   总能量(aux) | MAE=319568.7812 | RMSE=393429.6562 | R²=-1.9392 | MAPE=100.00%
