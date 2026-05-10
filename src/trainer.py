@@ -208,7 +208,7 @@ class Trainer:
     def _save_checkpoint(self, epoch, val_mae):
         ckpt_dir = Path(self.cfg.checkpoint_dir)
         ckpt_dir.mkdir(parents=True, exist_ok=True)
-        path = ckpt_dir / "best_model.pt"
+        path = ckpt_dir / getattr(self.cfg, "model_filename", "best_model.pt")
         torch.save({
             "epoch": epoch,
             "model_state_dict": self.model.state_dict(),
@@ -218,7 +218,7 @@ class Trainer:
         }, path)
 
     def load_best(self):
-        path = Path(self.cfg.checkpoint_dir) / "best_model.pt"
+        path = Path(self.cfg.checkpoint_dir) / getattr(self.cfg, "model_filename", "best_model.pt")
         if not path.exists():
             self.logger.warning("最佳模型文件不存在: %s", path)
             return

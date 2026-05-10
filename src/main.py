@@ -8,7 +8,7 @@ EV SoC 预测 - 训练入口
   1. 加载配置 (model_config + train_config)
   2. 设置随机种子 & 设备
   3. 构建 DataLoader
-  4. 初始化 LSTMTransformer 模型
+  4. 初始化 LSTM-Transformer 模型
   5. Trainer 训练 (含早停 + 检查点)
   6. 加载最佳模型 → 测试集评估
 """
@@ -81,6 +81,7 @@ def main():
     args = parser.parse_args()
 
     train_config.data_dir = "data/train/split_{}s".format(args.window)
+    train_config.model_filename = "best_model_{}s.pt".format(args.window)
     print("  数据目录: {}".format(train_config.data_dir))
 
     print_config_summary()
