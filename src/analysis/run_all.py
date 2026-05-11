@@ -24,11 +24,8 @@ plt.rcParams.update({
 
 from plot_01_r2 import plot_r2
 from plot_02_metrics import plot_metrics
-from plot_03_norm_mae import plot_norm_mae
 from plot_04_lstm_vs_linear import plot_lstm_vs_linear
 from plot_05_correlation import plot_corr
-from plot_08_tradeoff import plot_tradeoff
-from plot_09_dashboard import plot_dashboard
 
 
 def main():
@@ -39,11 +36,8 @@ def main():
     # Static plots (no GPU needed)
     plot_r2()
     plot_metrics()
-    plot_norm_mae()
     plot_lstm_vs_linear()
     plot_corr()
-    plot_tradeoff()
-    plot_dashboard()
 
     print("=" * 50)
     print("  All done! Output: plots/*.png")
