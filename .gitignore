@@ -1,15 +1,71 @@
-# 排除整个 data/raw 目录（存放数据集的文件夹，不上传）
-data/
-analysis_plots/
+# ==============================
+# 毕业论文项目 必须忽略的大文件
+# 数据集、图片、日志、临时文件
+# ==============================
 
-# 可选：排除其他大文件/临时文件（按需添加）
-.csv          # 排除所有 CSV 文件（如果数据集是 CSV 格式）
-*.xlsx         # 排除 Excel 文件
-*.h5           # 排除模型权重文件
-.pth          # 排除 PyTorch 模型文件
-*.zip          # 排除压缩包
-*.rar          # 排除压缩包
-__pycache__/   # 排除 Python 缓存文件夹
-.log          # 排除日志文件
-.DS_Store      # 排除 Mac 系统文件
-.png
+# 数据文件夹（完全不上传）
+/data/
+/raw_data/
+/dataset/
+
+# 绘图、结果图、分析图（完全不上传）
+/plots/
+/analysis_plots/
+/figures/
+/results/
+
+# 训练日志、输出文件（不上传）
+/logs/
+/temp/
+/output/
+/checkpoint/
+/checkpoints/
+
+# 模型权重、大文件（不上传）
+*.pth
+*.pt
+*.pkl
+*.h5
+*.hdf5
+*.ckpt
+
+# 数据文件（全部忽略）
+*.csv
+*.xlsx
+*.xls
+*.parquet
+*.txt
+*.json
+*.zip
+*.rar
+*.7z
+*.tar.gz
+
+# 图片文件（忽略所有）
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.svg
+*.pdf
+
+# 日志文件
+*.log
+*.out
+
+# Python 缓存
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# IDE 与系统文件
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.tmp
+
+# Jupyter  notebook 检查点
+.ipynb_checkpoints/
