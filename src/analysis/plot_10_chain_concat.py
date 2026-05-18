@@ -170,7 +170,7 @@ def chain_predict_one_trip(model, X, refined_soc):
         window_x = torch.from_numpy(X[t : t + WINDOW]).float().unsqueeze(0).to(DEVICE)
         delta_norm, _ = model(window_x)
         delta_pred = float(delta_norm.cpu().item()) * Y_STD + Y_MEAN
-        current_soc += delta_pred
+        current_soc -= delta_pred
         pred_points.append((t + WINDOW, current_soc))
 
     return pred_points, refined_soc.copy()
@@ -240,39 +240,51 @@ def _build_global_timeline(trips_data, offsets, all_preds):
 
 
 def plot_10a_full_timeline(global_true, global_x, pred_x, pred_soc, boundaries):
-    """图 10a: 12.9h 全时间线预测 vs 真实"""
-    fig, ax = plt.subplots(figsize=(20, 6))
+    """图 10a: 12.9h 全时间线预测 vs 真实, 横坐标小时, 预测点连线"""
+    # 转换为小时 (每步 10s, 360 步 = 1h)
+    gx_h = global_x / 360.0
+    px_h = pred_x / 360.0
+    bd_h = [(s / 360.0, e / 360.0) for s, e in boundaries]
 
-    # Trip 背景色
-    for i, (s, e) in enumerate(boundaries):
+    fig, ax = plt.subplots(figsize=(14, 5))
+
+    # Trip 背景色 + 顶部标签
+    y_min = float(global_true.min())
+    y_max = float(global_true.max())
+    y_pad = (y_max - y_min) * 0.05
+    for i, (s, e) in enumerate(bd_h):
         ax.axvspan(s, e, alpha=0.12, color=TRIP_COLORS[i], zorder=0)
         mid = (s + e) / 2
-        y_pos = global_true.max() + 1.5
-        ax.text(mid, y_pos, f"Trip {i + 1}", ha="center", fontsize=9,
+        ax.text(mid, y_max + y_pad * 0.6, f"Trip {i + 1}", ha="center", fontsize=9,
                 color=TRIP_COLORS_EDGE[i], fontweight="bold")
 
-    ax.plot(global_x, global_true, color=C_TRUE, linewidth=1.2, alpha=0.9,
+    # 真实 SoC — 连续蓝线
+    ax.plot(gx_h, global_true, color=C_TRUE, linewidth=1.5, alpha=0.9,
             label="True SoC")
-    ax.scatter(pred_x, pred_soc, color=C_PRED, s=30, zorder=5, edgecolors="white",
-               linewidth=0.5, label=f"Chain Prediction (n={len(pred_x)})")
+
+    # 预测点 — 红点 + 连线
+    ax.plot(px_h, pred_soc, "o-", color=C_PRED, linewidth=2, markersize=7,
+            markerfacecolor="white", markeredgewidth=1.5, zorder=5,
+            label="Chain Prediction")
 
     # 行程分隔线
-    for _, e in boundaries[:-1]:
+    for _, e in bd_h[:-1]:
         ax.axvline(e, color="#37474F", linestyle="--", linewidth=1, alpha=0.4)
 
-    ax.set_xlabel("Timeline (sample index, 10s/step)")
-    ax.set_ylabel("SoC (%)")
-    ax.set_title("Multi-Trip Chain Prediction (12.9h, SoC 100%→36%)", fontsize=15,
+    # X 轴: 小时刻度
+    total_h = float(gx_h[-1])
+    tick_step = 2.0  # 每 2 小时一个刻度
+    xticks = np.arange(0, total_h + tick_step, tick_step)
+    ax.set_xticks(xticks)
+    ax.set_xticklabels([f"{t:.0f}h" for t in xticks], fontsize=10)
+
+    ax.set_xlabel("Elapsed Time (hours)", fontsize=12)
+    ax.set_ylabel("SoC (%)", fontsize=12)
+    ax.set_title("Multi-Trip Chain Prediction (12.9h, SoC 100% → 36%)", fontsize=15,
                  fontweight="bold")
     ax.legend(loc="lower left", fontsize=10)
-
-    # 双轴: 小时
-    ax2 = ax.twiny()
-    hours = np.arange(0, global_x[-1] + 1, global_x[-1] / 13)
-    tick_positions = np.linspace(global_x[0], global_x[-1], len(hours))
-    ax2.set_xticks(tick_positions[::2])
-    ax2.set_xticklabels([f"{h:.1f}h" for h in hours[::2]], fontsize=8)
-    ax2.set_xlabel("Elapsed Time", fontsize=10)
+    ax.set_xlim(-0.1, float(gx_h[-1]) + 0.1)
+    ax.set_ylim(y_min - y_pad, y_max + y_pad)
 
     fig.tight_layout()
     fig.savefig(_OUTPUT_DIR / "10a_full_timeline.png", bbox_inches="tight", dpi=150)
