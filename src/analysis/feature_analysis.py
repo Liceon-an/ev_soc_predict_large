@@ -46,13 +46,13 @@ FEATURE_COLUMNS = [
 ]
 
 FEATURE_GROUPS = {
-    "Speed (瞬时)":   ["speed", "speed_diff", "speed_window20_std"],
-    "Speed (窗口)":   ["speed_window20_mean", "speed_diff_window20_mean"],
-    "Weather":        ["temperature_c_window20_mean", "relative_humidity_window20_mean",
-                       "visibility_km_window20_mean", "wind_speed_ms_window20_mean"],
-    "Driving Mode":   ["Low", "Mid", "High", "cruising_ratio"],
-    "Electrical":     ["total_volt", "total_current", "power"],
-    "Mileage":        ["mileage_diff"],
+    "电学特征":     ["total_volt", "total_current", "power"],
+    "速度（窗口统计）": ["speed_window20_mean", "speed_diff_window20_mean"],
+    "气象特征":     ["temperature_c_window20_mean", "relative_humidity_window20_mean",
+                     "visibility_km_window20_mean", "wind_speed_ms_window20_mean"],
+    "驾驶模式":     ["Low", "Mid", "High", "cruising_ratio"],
+    "速度（瞬时）":   ["speed", "speed_diff", "speed_window20_std"],
+    "里程":         ["mileage_diff"],
 }
 
 FEAT_TO_GROUP = {}
@@ -63,7 +63,7 @@ for gname, feats in FEATURE_GROUPS.items():
 # 实验窗口
 WINDOW = "1500"
 DATA_DIR = PROJECT_ROOT / "data" / "train" / f"split_{WINDOW}s"
-MODEL_PATH = PROJECT_ROOT / "models" / "best_model.pt"
+MODEL_PATH = PROJECT_ROOT / "models" / f"best_model_{WINDOW}s_lstm_transformer.pt"
 SCALER_PATH = DATA_DIR / "scaler.npz"
 OUTPUT_DIR = PROJECT_ROOT / "plots"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -85,7 +85,7 @@ def load_test_data():
 
     print(f"[data] 测试集: {X_test.shape[0]} 样本, "
           f"T={X_test.shape[1]}, F={X_test.shape[2]}")
-    print(f"[data] y_main(ΔSoC): mean={y_mean:.4f}, std={y_std:.4f}")
+    print(f"[data] y_main(ΔSoC): 均值={y_mean:.4f}, 标准差={y_std:.4f}")
     return X_test, y_test, y_mean, y_std
 
 
@@ -97,7 +97,7 @@ def load_model(device="cpu"):
     model.load_state_dict(ckpt["model_state_dict"])
     model.to(device)
     model.eval()
-    print(f"[model] 已加载 S{WINDOW}s 最佳模型 (best epoch={ckpt['epoch']})")
+    print(f"[model] 已加载 S{WINDOW}s 最佳模型 (最佳 epoch={ckpt['epoch']})")
     print(f"[model] 参数量: {model.count_params():,}")
     return model
 
@@ -125,7 +125,7 @@ def batch_evaluate(model, X, y_true, y_mean, y_std, device="cpu"):
 def get_baseline(model, X_test, y_test, y_mean, y_std, device="cpu"):
     """获取测试集基线 R²"""
     r2, mae, pred = batch_evaluate(model, X_test, y_test, y_mean, y_std, device)
-    print(f"[baseline] Test R² = {r2:.4f}, MAE = {mae:.4f}")
+    print(f"[基线] 测试集 R² = {r2:.4f}, MAE = {mae:.4f}")
     return r2, mae
 
 
@@ -162,7 +162,7 @@ def compute_feature_target_corr(X, y):
         pr = pearsonr(pooled[:, i], y)
         records.append({
             "feature": col,
-            "group": FEAT_TO_GROUP.get(col, "Other"),
+            "group": FEAT_TO_GROUP.get(col, "其他"),
             "pearson_r": pr.statistic,
             "pearson_p": pr.pvalue,
             "spearman_r": sp.statistic,
@@ -176,10 +176,8 @@ def compute_feature_corr_matrix(X):
     """计算特征间 Spearman 相关矩阵"""
     pooled = _aggregate_features(X)
     corr_matrix, p_matrix = spearmanr(pooled, axis=0, nan_policy='omit')
-    # spearmanr returns (F, F) matrix
     if corr_matrix.ndim == 0:
         corr_matrix = np.array([[1.0]])
-    # Replace NaN (from constant features) with 0
     corr_matrix = np.nan_to_num(corr_matrix, nan=0.0)
     return corr_matrix, FEATURE_COLUMNS
 
@@ -192,11 +190,6 @@ def permutation_importance(model, X, y, y_mean, y_std,
                            n_repeats=5, device="cpu", seed=42):
     """
     逐特征 shuffle，计算 R² 下降。
-
-    Args:
-        n_repeats: 每特征重复 shuffle 次数（取均值和标准差）
-    Returns:
-        DataFrame: feature | importance_mean | importance_std | group
     """
     rng = np.random.default_rng(seed)
     baseline_r2, _ = get_baseline(model, X, y, y_mean, y_std, device)
@@ -214,7 +207,7 @@ def permutation_importance(model, X, y, y_mean, y_std,
     for i, col in enumerate(FEATURE_COLUMNS):
         records.append({
             "feature": col,
-            "group": FEAT_TO_GROUP.get(col, "Other"),
+            "group": FEAT_TO_GROUP.get(col, "其他"),
             "importance_mean": float(r2_drop[i].mean()),
             "importance_std":  float(r2_drop[i].std(ddof=1)) if n_repeats > 1 else 0.0,
         })
@@ -232,7 +225,6 @@ def group_permutation_importance(model, X, y, y_mean, y_std,
     rng = np.random.default_rng(seed)
     baseline_r2, _ = get_baseline(model, X, y, y_mean, y_std, device)
 
-    # Build index mapping for groups
     group_to_indices = {}
     for gname, feats in FEATURE_GROUPS.items():
         group_to_indices[gname] = [FEATURE_COLUMNS.index(f) for f in feats]
@@ -254,8 +246,8 @@ def group_permutation_importance(model, X, y, y_mean, y_std,
             "importance_mean": float(np.mean(drops)),
             "importance_std":  float(np.std(drops, ddof=1)) if n_repeats > 1 else 0.0,
         })
-        print(f"  Group '{gname}' ({len(indices)} feats): "
-              f"R² drop = {float(np.mean(drops)):.4f} ± {float(np.std(drops, ddof=1)):.4f}")
+        print(f"  特征组 '{gname}' ({len(indices)} 个特征): "
+              f"R² 下降 = {float(np.mean(drops)):.4f} ± {float(np.std(drops, ddof=1)):.4f}")
 
     df = pd.DataFrame(records)
     df = df.sort_values("importance_mean", ascending=False).reset_index(drop=True)
@@ -288,7 +280,7 @@ def run_phase2(X_test, y_test, y_mean, y_std, device="cpu"):
     model = load_model(device)
     imp_df = permutation_importance(model, X_test, y_test, y_mean, y_std,
                                     n_repeats=5, device=device)
-    print("\n特征重要性排序 (R² drop):")
+    print("\n特征重要性排序 (R² 下降):")
     for _, r in imp_df.iterrows():
         bar = "█" * max(1, int(r["importance_mean"] * 100))
         print(f"  {r['feature']:30s}  ΔR²={r['importance_mean']:.4f} ± {r['importance_std']:.4f}  {bar}")
@@ -305,14 +297,14 @@ def run_phase3(model, X_test, y_test, y_mean, y_std, device="cpu"):
     print("\n特征组重要性排序:")
     for _, r in gdf.iterrows():
         bar = "█" * max(1, int(r["importance_mean"] * 50))
-        print(f"  {r['group']:20s} ({r['n_features']} feats): "
+        print(f"  {r['group']:20s} ({r['n_features']} 个特征): "
               f"ΔR²={r['importance_mean']:.4f} ± {r['importance_std']:.4f}  {bar}")
     return gdf
 
 
 def main():
     device = "cpu"
-    print(f"Device: {device}")
+    print(f"设备: {device}")
     X_test, y_test, y_mean, y_std = load_test_data()
 
     # Phase 1
@@ -323,7 +315,7 @@ def main():
     gdf = run_phase3(model, X_test, y_test, y_mean, y_std, device)
 
     print("\n" + "=" * 60)
-    print("  特征影响分析完成！运行 plot_feature_analysis.py 生成图表。")
+    print("  特征影响分析完成！")
     print("=" * 60)
 
     return {"corr_df": corr_df, "imp_df": imp_df, "gdf": gdf,

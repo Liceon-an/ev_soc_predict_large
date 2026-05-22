@@ -2,7 +2,22 @@
 Shared constants and data for all ablation study plots.
 """
 from pathlib import Path
+import warnings
 import numpy as np
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
+
+warnings.filterwarnings("ignore")
+
+# ── 中文字体设置 ──
+fm._load_fontmanager(try_read_cache=False)
+_font_path = "/usr/share/fonts/truetype/wqy/wqy-microhei.ttc"
+fm.fontManager.addfont(_font_path)
+plt.rcParams["font.sans-serif"] = ["WenQuanYi Micro Hei", "DejaVu Sans"]
+plt.rcParams["font.family"] = "sans-serif"
+plt.rcParams["axes.unicode_minus"] = False
 
 OUTPUT_DIR = Path("/root/code/ev_soc_predict/plots")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -11,7 +26,6 @@ WINDOWS = [200, 400, 600, 800, 1000, 1200, 1500]
 W_LABELS = [f"{w}s" for w in WINDOWS]
 x = np.array(WINDOWS)
 
-# Experiment results: 7-window ablation
 M = {
     200:  {"r2": 0.7744, "mae": 0.0864, "rmse": 0.1665, "mape": 20.73, "n": 7782,  "ym": 0.3405, "ys": 0.3377, "cov": 94.4},
     400:  {"r2": 0.8285, "mae": 0.1327, "rmse": 0.2501, "mape": 21.36, "n": 3496,  "ym": 0.6788, "ys": 0.5918, "cov": 86.7},

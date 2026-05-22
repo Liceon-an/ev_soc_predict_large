@@ -1,8 +1,8 @@
 """
-Plot 02: All Metrics Comparison — split into 3 separate files.
+Plot 02: 全部指标对比 — 拆分为 3 张子图。
   - 02a: R² + MAPE
-  - 02b: MAE + RMSE (original)
-  - 02c: Normalized MAE + Normalized RMSE (÷ΔSoC std)
+  - 02b: MAE + RMSE（原始）
+  - 02c: 归一化 MAE + 归一化 RMSE（÷ΔSoC 标准差）
 """
 import sys, warnings
 from pathlib import Path
@@ -26,17 +26,18 @@ def _fmt(val, key):
 
 
 def _plot_pair(items, filename, suptitle):
-    """1x2 bar chart. items = [(vals, name, key, color), (vals, name, key, color)]"""
-    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+    """1x2 柱状图。items = [(vals, name, key, color), (vals, name, key, color)]"""
+    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
     for ax, (vals, name, key, color) in zip(axes, items):
         bars = ax.bar(x, vals, color=color, alpha=0.8, width=60, edgecolor="white")
         for b, v in zip(bars, vals):
             ax.text(b.get_x() + b.get_width() / 2, b.get_height(), _fmt(v, key),
-                    ha="center", va="bottom", fontsize=9, fontweight="bold")
-        ax.set_xlabel("Window")
+                    ha="center", va="bottom", fontsize=10, fontweight="bold")
+        ax.set_xlabel("窗口时长", fontsize=13)
         ax.set_xticks(x)
-        ax.set_xticklabels(W_LABELS, fontsize=9)
-        ax.set_title(f"Test {name}", fontsize=13, fontweight="bold")
+        ax.set_xticklabels(W_LABELS, fontsize=11)
+        ax.set_title(f"测试集 {name}", fontsize=14, fontweight="bold")
+        ax.tick_params(labelsize=10)
     fig.suptitle(suptitle, fontsize=16, fontweight="bold", y=1.02)
     plt.tight_layout()
     fig.savefig(OUTPUT_DIR / filename, bbox_inches="tight")
@@ -44,38 +45,38 @@ def _plot_pair(items, filename, suptitle):
 
 
 def plot_metrics():
-    # ---- File a: R2 + MAPE ----
+    # 图 a: R² + MAPE
     _plot_pair(
         [
             ([M[w]["r2"] for w in WINDOWS], "R²", "r2", C["r2"]),
             ([M[w]["mape"] for w in WINDOWS], "MAPE (%)", "mape", C["mape"]),
         ],
         "02a_r2_mape.png",
-        "R² and MAPE Comparison",
+        "R² 与 MAPE 对比",
     )
     print("  [2a] 02a_r2_mape.png")
 
-    # ---- File b: MAE + RMSE (original) ----
+    # 图 b: MAE + RMSE（原始）
     _plot_pair(
         [
             ([M[w]["mae"] for w in WINDOWS], "MAE", "mae", C["mae"]),
             ([M[w]["rmse"] for w in WINDOWS], "RMSE", "rmse", C["rmse"]),
         ],
         "02b_mae_rmse.png",
-        "MAE and RMSE Comparison",
+        "MAE 与 RMSE 对比",
     )
     print("  [2b] 02b_mae_rmse.png")
 
-    # ---- File c: Normalized MAE + Normalized RMSE (/Delta SoC std) ----
+    # 图 c: 归一化 MAE + 归一化 RMSE（÷ΔSoC 标准差）
     _plot_pair(
         [
             ([M[w]["mae"] / M[w]["ys"] for w in WINDOWS],
-             "Normalized MAE", "norm_mae", C["mae"]),
+             "归一化 MAE", "norm_mae", C["mae"]),
             ([M[w]["rmse"] / M[w]["ys"] for w in WINDOWS],
-             "Normalized RMSE", "norm_rmse", C["rmse"]),
+             "归一化 RMSE", "norm_rmse", C["rmse"]),
         ],
         "02c_norm_mae_rmse.png",
-        "Normalized MAE and RMSE (÷ΔSoC std)",
+        "归一化 MAE 与 RMSE（÷ΔSoC 标准差）",
     )
     print("  [2c] 02c_norm_mae_rmse.png")
 

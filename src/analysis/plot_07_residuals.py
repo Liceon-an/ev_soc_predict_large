@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Plot 07: Residual Distribution — 7 models, per-window inference.
-Layout: 4 rows × 2 columns. Zero-centered uniform x-axis.
+Plot 07: 残差分布 — 7 个模型，逐窗口推理。
+布局: 4 行 × 2 列，零中心对称 x 轴。
 """
 import sys, warnings
 from pathlib import Path
@@ -18,6 +18,10 @@ import torch
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+
+# 中文字体
+plt.rcParams["font.sans-serif"] = ["WenQuanYi Micro Hei", "DejaVu Sans"]
+plt.rcParams["axes.unicode_minus"] = False
 
 from plot_utils import OUTPUT_DIR, WINDOWS, C
 from configs.model_config import model_config
@@ -64,12 +68,11 @@ def run_residuals(model, device, data_dir, ymean, ystd):
 
 def plot_residuals():
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    print(f"[plot_07] Device: {device}")
+    print(f"[plot_07] 设备: {device}")
 
-    fig, axes = plt.subplots(4, 2, figsize=(18, 26))
+    fig, axes = plt.subplots(4, 2, figsize=(20, 28))
     axes = axes.flatten()
 
-    # Pass 1: collect all residuals to find global symmetric bound
     all_residuals = []
     all_stats = []
     for w in WINDOWS:
@@ -91,11 +94,9 @@ def plot_residuals():
         del model
         torch.cuda.empty_cache()
 
-    # Global symmetric x-limit: max abs residual + 10% margin
     global_max_abs = max(np.abs(r).max() for r in all_residuals)
     xlim = (-global_max_abs * 1.1, global_max_abs * 1.1)
 
-    # Pass 2: plot
     for idx, (w, residuals, stats) in enumerate(zip(WINDOWS, all_residuals, all_stats)):
         ax = axes[idx]
         _, r2, mae, res_mean, res_std = stats
@@ -114,18 +115,19 @@ def plot_residuals():
         ax.axvline(0, color="red", linestyle="--", linewidth=1, alpha=0.6)
         ax.set_xlim(*xlim)
 
-        ax.set_xlabel("Residual (pred − true)")
-        ax.set_ylabel("Density")
-        ax.set_title(f"{w}s  R²={r2:.4f}  MAE={mae:.4f}  μ={res_mean:.3f}  σ={res_std:.3f}",
-                     fontsize=11, fontweight="bold")
+        ax.set_xlabel("残差（预测值 − 真实值）", fontsize=12)
+        ax.set_ylabel("密度", fontsize=12)
+        ax.set_title(f"窗口 {w}s   R²={r2:.4f}  MAE={mae:.4f}  μ={res_mean:.3f}  σ={res_std:.3f}",
+                     fontsize=12, fontweight="bold")
+        ax.tick_params(labelsize=10)
 
     axes[-1].set_visible(False)
 
-    fig.suptitle("Residual Distribution (7 models)", fontsize=18, fontweight="bold", y=1.01)
+    fig.suptitle("残差分布（7 个模型）", fontsize=18, fontweight="bold", y=1.01)
     plt.tight_layout()
     fig.savefig(OUTPUT_DIR / "07_residual_dist.png", bbox_inches="tight", dpi=150)
     plt.close(fig)
-    print("[plot_07]  Done → plots/07_residual_dist.png")
+    print("[plot_07]  完成 → plots/07_residual_dist.png")
 
 
 if __name__ == "__main__":
