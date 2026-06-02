@@ -14,18 +14,46 @@ import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import matplotlib.font_manager as fm
 
-# ── 中文字体 ──
-fm._load_fontmanager(try_read_cache=False)
-fm.fontManager.addfont("/usr/share/fonts/truetype/wqy/wqy-microhei.ttc")
-plt.rcParams["font.sans-serif"] = ["WenQuanYi Micro Hei", "DejaVu Sans"]
-plt.rcParams["font.family"] = "sans-serif"
-plt.rcParams["axes.unicode_minus"] = False
-plt.rcParams.update({"figure.dpi": 150, "font.size": 12, "axes.titlesize": 15, "axes.labelsize": 13})
-
+# 先加载业务库
 from src.analysis.feature_analysis import run_phase2, load_test_data
 
+# ====================== 【中文映射表】======================
+FEATURE_CN = {
+    "speed": "车速",
+    "speed_diff": "车速差分",
+    "mileage_diff": "里程差",
+    "speed_window20_mean": "车速窗口均值",
+    "speed_diff_window20_mean": "车速差分窗口均值",
+    "temperature_c_window20_mean": "温度窗口均值",
+    "relative_humidity_window20_mean": "相对湿度窗口均值",
+    "visibility_km_window20_mean": "能见度窗口均值",
+    "wind_speed_ms_window20_mean": "风速窗口均值",
+    "speed_window20_std": "车速窗口标准差",
+    "Low": "低负载",
+    "Mid": "中负载",
+    "High": "高负载",
+    "cruising_ratio": "巡航比例",
+    "total_volt": "总电压",
+    "total_current": "总电流",
+    "power": "电功率",
+}
+
+# ====================== 中文稳定配置 ======================
+matplotlib.rcParams["axes.unicode_minus"] = False
+matplotlib.rcParams["font.sans-serif"] = ["WenQuanYi Micro Hei", "DejaVu Sans"]
+matplotlib.rcParams["font.family"] = "sans-serif"
+
+# ====================== 画布(14,9) 标准专业字号 ======================
+plt.rcParams.update({
+    "figure.dpi": 150,
+    "font.size": 14,
+    "axes.titlesize": 20,
+    "axes.labelsize": 16,
+    "legend.fontsize": 14
+})
+
+# ====================== 绘图逻辑 ======================
 device = "cpu"
 X_test, y_test, y_mean, y_std = load_test_data()
 _, imp_df = run_phase2(X_test, y_test, y_mean, y_std, device)
@@ -52,32 +80,45 @@ if others_count > 0:
 
 top_features.reverse(); top_values.reverse(); top_errors.reverse()
 
+# 英文名转中文
+top_features_cn = []
+for name in top_features:
+    if "其他" in name:
+        top_features_cn.append(name)
+    else:
+        top_features_cn.append(FEATURE_CN.get(name, name))
+
+# 画布
 fig, ax = plt.subplots(figsize=(14, 9))
 n = len(top_features)
+# 统一全部柱子为蓝色渐变，去除单独灰色赋值
 blues = plt.cm.Blues(np.linspace(0.3, 0.9, n))
-blues[-1] = [0.69, 0.74, 0.78, 1.0]
 
 bars = ax.barh(range(n), top_values, color=blues, edgecolor="white", height=0.65)
 ax.set_yticks(range(n))
-ax.set_yticklabels(top_features, fontsize=12)
-ax.set_xlabel("R² 下降（特征被随机打乱后）", fontsize=13)
-ax.set_title("单特征排列重要性（S1500, n=123）", fontsize=15, fontweight="bold")
+
+ax.set_yticklabels(top_features_cn, fontsize=20)
+ax.set_xlabel("R² 下降", fontsize=24)
+ax.set_title("特征贡献度", fontsize=28, fontweight="bold")
 ax.axvline(0, color="gray", linewidth=0.8, linestyle="--")
 ax.invert_yaxis()
-ax.tick_params(labelsize=10)
+ax.tick_params(labelsize=20)
 
+# 数值标签
 for b, v in zip(bars, top_values):
     ax.text(b.get_width() + 0.005, b.get_y() + b.get_height()/2,
-            f"{v:.4f}  ({v/total*100:.1f}%)", va="center", fontsize=10, fontweight="bold")
+            f"{v:.4f}  ({v/total*100:.1f}%)", va="center", fontsize=18, fontweight="bold")
 
-ax.text(0.98, 0.02, f"基线 R² = 0.9462  |  总正向 ΔR² = {total:.4f}",
-        transform=ax.transAxes, ha="right", fontsize=10, color="gray")
+# 右下角备注
+ax.text(0.98, 0.02, f"基线 R² = 0.9462",
+        transform=ax.transAxes, ha="right", fontsize=18, color="gray")
 
 plt.tight_layout()
-outdir = _PROJECT_ROOT / "plots"; outdir.mkdir(exist_ok=True)
+outdir = _PROJECT_ROOT / "plots"
+outdir.mkdir(exist_ok=True)
 fig.savefig(outdir / "17_feature_bar.png", bbox_inches="tight", dpi=150)
 plt.close(fig)
-print("  [17] 已保存")
+print("  [17] 单特征贡献度柱状图已保存")
 
 print("\n特征贡献度明细:")
 for f, v in zip(all_features, all_imp):

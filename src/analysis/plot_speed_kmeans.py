@@ -13,25 +13,29 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import seaborn as sns
 
-# ====================== 最终版中文修复（无报错，100%可用）======================
-plt.rcParams['font.sans-serif'] = ['WenQuanYi Micro Hei']
-plt.rcParams['axes.unicode_minus'] = False
-# ============================================================================
-
 sys.path.insert(0, str(Path(__file__).parent))
-
 from speed_kmeans import run, OUTPUT_DIR
 
+# --------------------------
+# 先加载样式
+# --------------------------
 sns.set_style("whitegrid")
 plt.rcParams.update({
     "figure.dpi": 150, "font.size": 12, "axes.titlesize": 14,
     "axes.labelsize": 12, "figure.figsize": (10, 6),
 })
 
+# ======================
+# ✅ 【最后才设置字体】
+# ✅ 放在所有配置之后
+# ✅ 这才是真正生效的位置
+# ======================
+matplotlib.rcParams["font.sans-serif"] = ["WenQuanYi Micro Hei"]
+matplotlib.rcParams["axes.unicode_minus"] = False
+
 # 聚类颜色与中译名
 CLUSTER_COLORS = ["#4CAF50", "#FF9800", "#F44336"]
 CLUSTER_NAMES = ["低速", "中速", "高速"]
-
 
 
 def plot_speed_histogram(result, output_path=None):
@@ -56,23 +60,23 @@ def plot_speed_histogram(result, output_path=None):
     for i, (name, center, color) in enumerate(zip(CLUSTER_NAMES, centers, CLUSTER_COLORS)):
         ax.axvline(center, color=color, linestyle="--", linewidth=2, alpha=0.8, zorder=5)
         ax.text(center, ax.get_ylim()[1] * 0.92, f"  {name}\n  {center:.1f}",
-                color=color, fontsize=10, fontweight="bold", va="top", ha="center")
+                color=color, fontsize=16, fontweight="bold", va="top", ha="center")
 
     for t in thresholds:
         ax.axvline(t, color="#37474F", linestyle=":", linewidth=1.5, alpha=0.7, zorder=4)
 
-    ax.text((thresholds[0] + speed.min()) / 2, ax.get_ylim()[1] * 0.98,
+    ax.text((thresholds[0] + speed.min()) / 2 + 10, ax.get_ylim()[1] * 0.98,
             f"分界\n{thresholds[0]:.1f}",
-            fontsize=9, ha="center", va="top", color="#37474F", fontweight="bold")
-    ax.text((thresholds[0] + thresholds[1]) / 2, ax.get_ylim()[1] * 0.98,
+            fontsize=15, ha="center", va="top", color="#37474F", fontweight="bold")
+    ax.text((thresholds[0] + thresholds[1]) / 2 + 10, ax.get_ylim()[1] * 0.98,
             f"分界\n{thresholds[1]:.1f}",
-            fontsize=9, ha="center", va="top", color="#37474F", fontweight="bold")
+            fontsize=15, ha="center", va="top", color="#37474F", fontweight="bold")
 
-    ax.set_xlabel("速度（km/h）", fontsize=13)
-    ax.set_ylabel("频次", fontsize=13)
-    ax.set_title("速度分布 — KMeans 聚类（低 / 中 / 高）", fontsize=15, fontweight="bold")
-    ax.legend(fontsize=10, loc="upper right")
-    ax.tick_params(labelsize=10)
+    ax.set_xlabel("速度（km/h）", fontsize=20)
+    ax.set_ylabel("频次", fontsize=20)
+    ax.set_title("速度分布 — KMeans 聚类（低 / 中 / 高）", fontsize=24, fontweight="bold")
+    ax.legend(fontsize=20, loc="upper right")
+    ax.tick_params(labelsize=20)
 
     fig.tight_layout()
     fig.savefig(output_path, dpi=150, bbox_inches="tight")
@@ -96,10 +100,10 @@ def plot_speed_boxplot(result, output_path=None):
         patch.set_facecolor(color)
         patch.set_alpha(0.6)
 
-    ax.set_xticklabels(CLUSTER_NAMES, fontsize=12)
-    ax.set_ylabel("速度（km/h）", fontsize=13)
-    ax.set_title("各聚类速度分布", fontsize=15, fontweight="bold")
-    ax.tick_params(labelsize=11)
+    ax.set_xticklabels(CLUSTER_NAMES, fontsize=20)
+    ax.set_ylabel("速度（km/h）", fontsize=20)
+    ax.set_title("各聚类速度分布", fontsize=24, fontweight="bold")
+    ax.tick_params(labelsize=20)
     ax.grid(axis="y", alpha=0.3)
 
     fig.tight_layout()

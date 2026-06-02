@@ -18,17 +18,14 @@ def plot_lstm_vs_linear():
     for i in range(len(WINDOWS)):
         ax.text(x[i] + wd / 2, r2_lstm[i] + 0.008, f"+{gains[i]:.3f}", ha="center",
                 fontsize=9, fontweight="bold", color="darkgreen", rotation=90)
-    ax.set_xlabel("窗口时长（秒）", fontsize=13)
-    ax.set_ylabel("R²", fontsize=13)
-    ax.set_title("LSTM-Transformer vs 线性基线（仅 avg_power）", fontsize=15, fontweight="bold")
+    ax.set_xlabel("窗口时长（秒）", fontsize=20)
+    ax.set_ylabel("R²", fontsize=20)
+    ax.set_title("LSTM-Transformer vs 线性基线（仅 avg_power）", fontsize=24, fontweight="bold")
     ax.set_xticks(x)
-    ax.set_xticklabels(W_LABELS, fontsize=11)
-    ax.tick_params(labelsize=10)
-    ax.legend(loc="lower right", fontsize=11)
+    ax.set_xticklabels(W_LABELS, fontsize=20)
+    ax.tick_params(labelsize=20)
+    ax.legend(loc="lower right", fontsize=20)
     ax.set_ylim(0.65, 0.97)
-    ax.text(0.98, 0.05, f"平均增益: +{np.mean(gains):.3f} R²", transform=ax.transAxes,
-            fontsize=13, ha="right",
-            bbox=dict(boxstyle="round", facecolor="lightgreen", alpha=0.7))
     plt.tight_layout()
     fig.savefig(OUTPUT_DIR / "04_lstm_vs_linear.png", bbox_inches="tight")
     plt.close(fig)

@@ -49,7 +49,7 @@ def load_model(checkpoint_path, device):
 
 def run_residuals(model, device, data_dir, ymean, ystd):
     test_path = Path(data_dir) / "test_data.npz"
-    data = np.load(str(test_path))
+    data = np.load(test_path)
     X = torch.from_numpy(data["X"]).float()
     y_true_raw = data["y_main"]
 
@@ -67,10 +67,11 @@ def run_residuals(model, device, data_dir, ymean, ystd):
 
 
 def plot_residuals():
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    device = "cpu"
     print(f"[plot_07] 设备: {device}")
 
-    fig, axes = plt.subplots(4, 2, figsize=(20, 28))
+    # 画布高度进一步加大，彻底不重叠
+    fig, axes = plt.subplots(4, 2, figsize=(28, 40))
     axes = axes.flatten()
 
     all_residuals = []
@@ -84,12 +85,9 @@ def plot_residuals():
         residuals, y_true, y_pred = run_residuals(model, device, data_dir, ymean, ystd)
         all_residuals.append(residuals)
 
-        from sklearn.metrics import r2_score, mean_absolute_error
-        r2 = r2_score(y_true, y_pred)
-        mae = mean_absolute_error(y_true, y_pred)
         res_mean = float(np.mean(residuals))
         res_std  = float(np.std(residuals))
-        all_stats.append((w, r2, mae, res_mean, res_std))
+        all_stats.append((w, res_mean, res_std))
 
         del model
         torch.cuda.empty_cache()
@@ -99,32 +97,41 @@ def plot_residuals():
 
     for idx, (w, residuals, stats) in enumerate(zip(WINDOWS, all_residuals, all_stats)):
         ax = axes[idx]
-        _, r2, mae, res_mean, res_std = stats
+        _, res_mean, res_std = stats
 
-        ax.hist(residuals, bins=30, density=True, alpha=0.5, color=C["mae"],
-                edgecolor="white")
+        ax.hist(
+            residuals, bins=30, density=True, alpha=0.5,
+            color=C["mae"], edgecolor="white", linewidth=1
+        )
 
         from scipy.stats import gaussian_kde
         try:
             kde = gaussian_kde(residuals)
             xs = np.linspace(xlim[0], xlim[1], 200)
-            ax.plot(xs, kde(xs), color=C["r2"], linewidth=2, label="KDE")
+            ax.plot(xs, kde(xs), color=C["r2"], linewidth=3)
         except Exception:
             pass
 
-        ax.axvline(0, color="red", linestyle="--", linewidth=1, alpha=0.6)
+        ax.axvline(0, color="red", linestyle="--", linewidth=2, alpha=0.8)
         ax.set_xlim(*xlim)
 
-        ax.set_xlabel("残差（预测值 − 真实值）", fontsize=12)
-        ax.set_ylabel("密度", fontsize=12)
-        ax.set_title(f"窗口 {w}s   R²={r2:.4f}  MAE={mae:.4f}  μ={res_mean:.3f}  σ={res_std:.3f}",
-                     fontsize=12, fontweight="bold")
-        ax.tick_params(labelsize=10)
+        # ===================== 字号全部放大 =====================
+        ax.set_xlabel("残差", fontsize=35, labelpad=12)
+        ax.set_ylabel("概率密度", fontsize=35, labelpad=12)
+        
+        # 保留：窗口 + μ + σ，字号超大
+        ax.set_title(
+            f"窗口 {w}s    μ = {res_mean:.3f}    σ = {res_std:.3f}",
+            fontsize=35, fontweight="bold", pad=20
+        )
+        
+        ax.tick_params(labelsize=30)
 
     axes[-1].set_visible(False)
 
-    fig.suptitle("残差分布（7 个模型）", fontsize=18, fontweight="bold", y=1.01)
-    plt.tight_layout()
+    # 总标题完全不重叠
+    fig.suptitle("残差分布（7 个模型）", fontsize=40, fontweight="bold", y=0.98)
+    plt.tight_layout(rect=[0, 0, 1, 0.97])
     fig.savefig(OUTPUT_DIR / "07_residual_dist.png", bbox_inches="tight", dpi=150)
     plt.close(fig)
     print("[plot_07]  完成 → plots/07_residual_dist.png")

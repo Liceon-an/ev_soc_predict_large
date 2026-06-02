@@ -32,13 +32,26 @@ def _plot_pair(items, filename, suptitle):
         bars = ax.bar(x, vals, color=color, alpha=0.8, width=60, edgecolor="white")
         for b, v in zip(bars, vals):
             ax.text(b.get_x() + b.get_width() / 2, b.get_height(), _fmt(v, key),
-                    ha="center", va="bottom", fontsize=10, fontweight="bold")
-        ax.set_xlabel("窗口时长", fontsize=13)
+                    ha="center", va="bottom", fontsize=11, fontweight="bold")
+        
+        # 坐标轴标签字号加大
+        ax.set_xlabel("窗口时长", fontsize=20, fontweight='bold')
+        
+        # 坐标数字（刻度）字号加大
         ax.set_xticks(x)
-        ax.set_xticklabels(W_LABELS, fontsize=11)
-        ax.set_title(f"测试集 {name}", fontsize=14, fontweight="bold")
-        ax.tick_params(labelsize=10)
-    fig.suptitle(suptitle, fontsize=16, fontweight="bold", y=1.02)
+        ax.set_xticklabels(W_LABELS, fontsize=20, fontweight='bold')
+        ax.tick_params(axis='y', labelsize=20, width=1)  # Y轴刻度字号加大
+        
+        # 子图标题：加粗 + 字号加大
+        ax.set_title(f"测试集 {name}", fontsize=24, fontweight="bold")
+        
+        # ✅ 打开网格线
+        ax.grid(True, linestyle='--', alpha=0.6)
+        ax.set_axisbelow(True)  # 网格放在柱子下层，不遮挡图表
+
+    # 总标题：字号更大、更粗
+    fig.suptitle(suptitle, fontsize=24, fontweight="bold", y=1.02)
+    
     plt.tight_layout()
     fig.savefig(OUTPUT_DIR / filename, bbox_inches="tight")
     plt.close(fig)
@@ -76,10 +89,11 @@ def plot_metrics():
              "归一化 RMSE", "norm_rmse", C["rmse"]),
         ],
         "02c_norm_mae_rmse.png",
-        "归一化 MAE 与 RMSE（÷ΔSoC 标准差）",
+        "归一化 MAE 与 RMSE",
     )
     print("  [2c] 02c_norm_mae_rmse.png")
 
 
 if __name__ == "__main__":
     plot_metrics()
+    

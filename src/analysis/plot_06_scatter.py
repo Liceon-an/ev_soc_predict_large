@@ -67,10 +67,12 @@ def run_inference(model, device, data_dir, ymean, ystd):
 
 
 def plot_scatter():
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    device = "cpu"
     print(f"[plot_06] 设备: {device}")
 
-    fig = plt.figure(figsize=(30, 17))
+    # 降低画布高度，缩减顶部留白，子图间距保持原有大小
+    fig = plt.figure(figsize=(30, 14))
+    # 保留原始子图间距不变
     gs = gridspec.GridSpec(2, 12, figure=fig, hspace=0.40, wspace=0.25)
 
     ax_positions = [
@@ -109,19 +111,22 @@ def plot_scatter():
         lo = max(vmin - margin, -0.5)
         hi = vmax + margin
 
-        ax.plot([lo, hi], [lo, hi], "r--", linewidth=1.2, alpha=0.7)
+        ax.plot([lo, hi], [lo, hi], "r--", linewidth=2, alpha=0.8)
         ax.set_xlim(lo, hi)
         ax.set_ylim(lo, hi)
-        ax.set_xlabel("真实 ΔSoC", fontsize=13)
-        ax.set_ylabel("预测 ΔSoC", fontsize=13)
-        ax.set_title(f"窗口 {w}s   R²={r2:.4f}  MAE={mae:.4f}", fontsize=13, fontweight="bold")
+
+        # 放大字号
+        ax.set_xlabel("真实 ΔSOC", fontsize=24)
+        ax.set_ylabel("预测 ΔSOC", fontsize=24)
+        ax.set_title(f"窗口 {w}s   R²={r2:.4f}  MAE={mae:.4f}", fontsize=24, fontweight="bold")
+        ax.tick_params(labelsize=24)
         ax.set_aspect("equal")
-        ax.tick_params(labelsize=10)
 
         del model
         torch.cuda.empty_cache()
 
-    fig.suptitle("预测值 vs 真实 ΔSoC（7 个模型）", fontsize=18, fontweight="bold", y=1.01)
+    # 上调总标题位置，缩小和子图间距
+    fig.suptitle("预测值 vs 真实 ΔSOC（7 个模型）", fontsize=26, fontweight="bold", y=0.96)
     fig.savefig(OUTPUT_DIR / "06_scatter_comparison.png", bbox_inches="tight", dpi=150)
     plt.close(fig)
     print("[plot_06]  完成 → plots/06_scatter_comparison.png")
