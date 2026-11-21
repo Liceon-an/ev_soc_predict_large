@@ -2,8 +2,8 @@
 """
 多段行程拼接链式预测 — 可视化
 
-选取 7 条 trip，SoC 偏移拼接成连续曲线 (100%→36%, 12.9h)，
-S1500 模型滑动窗口链式预测 ΔSoC 并累加重建 SoC 轨迹。
+选取 7 条 trip，SOC 偏移拼接成连续曲线 (100%→36%, 12.9h)，
+S1500 模型滑动窗口链式预测 ΔSOC 并累加重建 SOC 轨迹。
 
 输出 (plots/):
   10a_full_timeline.png      — 12.9h 全时间线预测 vs 真实
@@ -155,15 +155,15 @@ def chain_predict_one_trip(model, X, refined_soc):
     """
     对单条 trip 执行链式预测。
 
-    从 t=0 开始, 每 STRIDE 步取 X[t:t+WINDOW] 预测 ΔSoC,
-    累加到 SoC_pred 中。初始 SoC 锚定为 refined_soc[0].
+    从 t=0 开始, 每 STRIDE 步取 X[t:t+WINDOW] 预测 ΔSOC,
+    累加到 SOC_pred 中。初始 SOC 锚定为 refined_soc[0].
 
     Returns:
-        pred_points: list of (idx, SoC_pred)  — 每个预测窗口终点
-        SoC_true:    refined_soc 原始值
+        pred_points: list of (idx, SOC_pred)  — 每个预测窗口终点
+        SOC_true:    refined_soc 原始值
     """
     n = len(X)
-    pred_points = []  # (absolute_index, SoC_pred_value)
+    pred_points = []  # (absolute_index, SOC_pred_value)
     current_soc = float(refined_soc[0])
 
     for t in range(0, n - WINDOW, STRIDE):
@@ -177,11 +177,11 @@ def chain_predict_one_trip(model, X, refined_soc):
 
 
 # ═══════════════════════════════════════════════════════════
-# SoC 拼接
+# SOC 拼接
 # ═══════════════════════════════════════════════════════════
 
 def compute_trip_offsets(trips_data):
-    """计算每条 trip 的 SoC 偏移量，使 trip 间 SoC 连续"""
+    """计算每条 trip 的 SOC 偏移量，使 trip 间 SOC 连续"""
     offsets = []
     cum_offset = 0.0
     for i, (_, soc, _, _) in enumerate(trips_data):
@@ -211,10 +211,10 @@ def _build_global_timeline(trips_data, offsets, all_preds):
     构建全局时间线数据结构。
 
     Returns:
-        global_true:   全局真实 SoC (逐点)
+        global_true:   全局真实 SOC (逐点)
         global_x:      全局时间索引 (逐点)
         pred_x:        预测点时间索引
-        pred_soc:      预测点 SoC 值
+        pred_soc:      预测点 SOC 值
         trip_boundaries: 各段索引边界 [(start, end), ...]
     """
     global_true, global_x, pred_x, pred_soc = [], [], [], []
@@ -252,7 +252,7 @@ def plot_10a_full_timeline(global_true, global_x, pred_x, pred_soc, boundaries):
                 color=TRIP_COLORS_EDGE[i], fontweight="bold")
 
     ax.plot(global_x, global_true, color=C_TRUE, linewidth=1.2, alpha=0.9,
-            label="True SoC")
+            label="True SOC")
     ax.scatter(pred_x, pred_soc, color=C_PRED, s=30, zorder=5, edgecolors="white",
                linewidth=0.5, label=f"Chain Prediction (n={len(pred_x)})")
 
@@ -261,8 +261,8 @@ def plot_10a_full_timeline(global_true, global_x, pred_x, pred_soc, boundaries):
         ax.axvline(e, color="#37474F", linestyle="--", linewidth=1, alpha=0.4)
 
     ax.set_xlabel("Timeline (sample index, 10s/step)")
-    ax.set_ylabel("SoC (%)")
-    ax.set_title("Multi-Trip Chain Prediction (12.9h, SoC 100%→36%)", fontsize=15,
+    ax.set_ylabel("SOC (%)")
+    ax.set_title("Multi-Trip Chain Prediction (12.9h, SOC 100%→36%)", fontsize=15,
                  fontweight="bold")
     ax.legend(loc="lower left", fontsize=10)
 
@@ -297,7 +297,7 @@ def plot_10b_zoom_3h(global_true, global_x, pred_x, pred_soc, boundaries):
 
     mask_true = global_x <= zoom_end
     ax.plot(global_x[mask_true], global_true[mask_true], color=C_TRUE,
-            linewidth=1.5, alpha=0.9, label="True SoC")
+            linewidth=1.5, alpha=0.9, label="True SOC")
 
     mask_pred = pred_x <= zoom_end
     ax.scatter(pred_x[mask_pred], pred_soc[mask_pred], color=C_PRED, s=40,
@@ -309,7 +309,7 @@ def plot_10b_zoom_3h(global_true, global_x, pred_x, pred_soc, boundaries):
             ax.axvline(e, color="#37474F", linestyle="--", linewidth=1, alpha=0.4)
 
     ax.set_xlabel("Timeline (sample index)")
-    ax.set_ylabel("SoC (%)")
+    ax.set_ylabel("SOC (%)")
     ax.set_title("Chain Prediction — First 3 Hours (Zoom)", fontsize=15,
                  fontweight="bold")
     ax.legend(loc="lower left", fontsize=10)
@@ -342,7 +342,7 @@ def plot_10c_error_timeline(pred_x, pred_soc, global_true, boundaries):
                label=f"Mean Error = {np.mean(errors):.3f}")
 
     ax.set_xlabel("Timeline (sample index)")
-    ax.set_ylabel("Prediction Error (ΔSoC)")
+    ax.set_ylabel("Prediction Error (ΔSOC)")
     ax.set_title("Chain Prediction Error Timeline", fontsize=14, fontweight="bold")
     ax.legend(fontsize=10)
 
@@ -388,8 +388,8 @@ def plot_10d_scatter(pred_x, pred_soc, global_true, boundaries):
     ax.set_xlim(lo, hi)
     ax.set_ylim(lo, hi)
     ax.set_aspect("equal")
-    ax.set_xlabel("True SoC (%)")
-    ax.set_ylabel("Predicted SoC (%)")
+    ax.set_xlabel("True SOC (%)")
+    ax.set_ylabel("Predicted SOC (%)")
     ax.set_title(f"Chain Prediction Scatter\nR²={r2:.4f}  MAE={mae:.4f}  n={len(pred_vals)}",
                  fontsize=13, fontweight="bold")
     ax.legend(loc="upper left", fontsize=9)
@@ -540,7 +540,7 @@ def main():
         print(f"  Trip {tid}: {n} rows, SoC [{soc[0]:.1f}% → {soc[-1]:.1f}%], Δ={soc[0] - soc[-1]:.1f}%")
         trips_data.append((X_raw, soc, time_col, n))
 
-    # 3. 计算 SoC 偏移
+    # 3. 计算 SOC 偏移
     offsets = compute_trip_offsets(trips_data)
     print(f"\n[offsets] SoC 拼接偏移量:")
     for i, (tid, off) in enumerate(zip(TRIP_IDS, offsets)):
@@ -549,7 +549,7 @@ def main():
 
     # 4. 链式预测
     print(f"\n[predict] 链式预测 (stride={STRIDE}, window={WINDOW})...")
-    all_preds = []  # [[(idx, SoC_pred), ...], ...]
+    all_preds = []  # [[(idx, SOC_pred), ...], ...]
     total_pred_points = 0
     for i, (X_raw, soc, _, _) in enumerate(trips_data):
         X_z = apply_zscore(X_raw, mean, std)

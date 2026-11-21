@@ -1,7 +1,7 @@
 """
 训练器 — 封装训练/验证/测试流程、早停、检查点
 
-仅 y_main (ΔSoC) 参与 loss 计算；
+仅 y_main (ΔSOC) 参与 loss 计算；
 y_aux (总能量) 全程仅监控，不参与梯度传播。
 """
 
@@ -262,7 +262,7 @@ class Trainer:
             return {"mae": mae, "rmse": rmse, "r2": r2, "mape": mape}
 
         self.logger.info("\n========== %s 集最终评估 ==========", phase_name)
-        main_metrics = _report("ΔSoC(main)", preds_main, targets_main)
+        main_metrics = _report("ΔSOC(main)", preds_main, targets_main)
         aux_metrics = _report("总能量(aux)", preds_aux, targets_aux)
 
         return {**{"main_" + k: v for k, v in main_metrics.items()},

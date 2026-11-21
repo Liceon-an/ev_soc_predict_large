@@ -8,7 +8,7 @@ LSTM → Transformer 串联混合模型
     + PositionalEncoding
     → TransformerEncoder (自注意力捕获长程依赖)
     → Global Mean Pooling
-    → y_main (ΔSoC) + y_aux (总能量, 仅监控)
+    → y_main (ΔSOC) + y_aux (总能量, 仅监控)
 """
 
 import math
@@ -81,7 +81,7 @@ class LSTMTransformer(nn.Module):
         )
 
         # ---------- Prediction Heads ----------
-        self.main_head = nn.Linear(cfg.d_model, 1)  # ΔSoC
+        self.main_head = nn.Linear(cfg.d_model, 1)  # ΔSOC
         self.aux_head = nn.Linear(cfg.d_model, 1)  # 总能量 (仅监控)
 
         self._init_weights()
@@ -103,7 +103,7 @@ class LSTMTransformer(nn.Module):
         Args:
             x: (B, T, F)
         Returns:
-            y_main: (B,)  ΔSoC — 训练目标
+            y_main: (B,)  ΔSOC — 训练目标
             y_aux:  (B,)  总能量 — 仅监控
         """
         # LSTM

@@ -3,7 +3,7 @@
 特征影响分析 — 核心计算模块
 
 四阶段分析:
-  Phase 1: 特征-ΔSoC 相关分析 (Spearman + Pearson)
+  Phase 1: 特征-ΔSOC 相关分析 (Spearman + Pearson)
   Phase 2: Permutation Importance (逐特征 shuffle，测 R² 下降)
   Phase 3: 特征组贡献 (Group Permutation)
   Phase 4: 综合结论 (由 plot 脚本完成)
@@ -74,10 +74,10 @@ OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 # ──────────────────────────────────────────────────────
 
 def load_test_data():
-    """加载测试集 X (已 Z-score) 和 y_main (原始 ΔSoC)"""
+    """加载测试集 X (已 Z-score) 和 y_main (原始 ΔSOC)"""
     test_data = np.load(DATA_DIR / "test_data.npz")
     X_test = test_data["X"].astype(np.float32)           # (N, T, F)
-    y_test = test_data["y_main"].astype(np.float32)      # (N,) raw ΔSoC
+    y_test = test_data["y_main"].astype(np.float32)      # (N,) raw ΔSOC
 
     train_data = np.load(DATA_DIR / "train_data.npz")
     y_mean = float(train_data["y_main"].mean())
@@ -152,7 +152,7 @@ def _aggregate_features(X):
 
 def compute_feature_target_corr(X, y):
     """
-    计算每个特征与 ΔSoC 的 Spearman + Pearson 相关系数。
+    计算每个特征与 ΔSOC 的 Spearman + Pearson 相关系数。
     返回 DataFrame: feature | pearson_r | spearman_r | p_value | group
     """
     pooled = _aggregate_features(X)
@@ -267,13 +267,13 @@ def group_permutation_importance(model, X, y, y_mean, y_std,
 # ──────────────────────────────────────────────────────
 
 def run_phase1(X_test, y_test):
-    """Phase 1: 特征-ΔSoC 相关性分析"""
+    """Phase 1: 特征-ΔSOC 相关性分析"""
     print("\n" + "=" * 60)
-    print("  Phase 1: 特征-ΔSoC 相关性分析")
+    print("  Phase 1: 特征-ΔSOC 相关性分析")
     print("=" * 60)
     corr_df, pooled = compute_feature_target_corr(X_test, y_test)
     corr_df_sorted = corr_df.sort_values("spearman_r", ascending=False)
-    print("\n特征 vs ΔSoC (Spearman 相关性排序):")
+    print("\n特征 vs ΔSOC (Spearman 相关性排序):")
     for _, r in corr_df_sorted.iterrows():
         print(f"  {r['feature']:30s}  Spearman={r['spearman_r']:+.4f}  "
               f"Pearson={r['pearson_r']:+.4f}  p={r['spearman_p']:.2e}")
