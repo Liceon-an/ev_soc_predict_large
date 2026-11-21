@@ -1,154 +1,118 @@
-# EV SoC 预测 — 电动车辆荷电状态预测
+# EV SOC 预测 — 电动车辆荷电状态变化估计
 
-## 项目概述
+利用已观测时间窗口内的车辆运行与环境特征，通过 **LSTM–Transformer** 估计该窗口的 SOC 下降量：
 
-通过时间序列数据预测电动车辆在给定窗口内的 **SoC 变化量 (ΔSoC)**。
+`ΔSOC = refined_soc[窗口起点] − refined_soc[窗口终点]`
 
-- **远程服务器**: `ssh -p 47501 root@connect.westd.seetacloud.com`
-- **项目路径**: `/root/code/ev_soc_predict`
-- **GPU 环境**: `conda activate torch_gpu` (Python 3.10 + torch 2.11.0+cu130)
-- **GPU**: NVIDIA RTX 5090 (32GB, Blackwell)
+本仓库保留了数据处理、模型训练与分析代码，以及部分模型权重、训练日志和结果图片。**原始数据、预处理数据、标准化参数及各窗口完整权重未随仓库提供，当前无法仅凭仓库完整复现实验。** 以下结果来自已保存日志，本次整理未重新训练或评估模型。
 
----
+## 已保存实验结果
 
-## 项目结构
+下表采用 2026-04-24 训练日志中的主任务测试集最终评估；每行可追溯到对应日志。整理后的数据见 [window_metrics.csv](results/window_metrics.csv)，来源与限制见 [结果说明](docs/RESULTS.md)。
 
-```
-ev_soc_predict/
-├── configs/                    # 配置文件
-│   ├── config_200s.py ~ 1500s.py  # 7 窗口的时间片段配置
-│   ├── model_config.py         # 模型超参数
-│   ├── train_config.py         # 训练超参数
-│   └── path_config.py          # 路径管理
+| 窗口（秒） | 训练样本数 | Test R² | Test MAE（SOC 百分点） | Test RMSE（SOC 百分点） | Test MAPE |
+|---:|---:|---:|---:|---:|---:|
+| 200 | 7,782 | 0.7744 | 0.0864 | 0.1665 | 20.73% |
+| 400 | 3,496 | 0.8285 | 0.1327 | 0.2501 | 21.36% |
+| 600 | 2,117 | 0.8613 | 0.1716 | 0.3122 | 20.81% |
+| 800 | 1,453 | 0.9157 | 0.1860 | 0.2837 | 16.97% |
+| 1000 | 1,066 | 0.9187 | 0.2255 | 0.3316 | 17.13% |
+| 1200 | 812 | 0.9227 | 0.2526 | 0.3904 | 18.24% |
+| 1500 | 574 | 0.9462 | 0.2343 | 0.3425 | 21.81% |
+
+在这些已记录的实验中，1500 秒窗口的 R² 最高，800 秒窗口的 MAPE 最低。不同窗口对应不同样本集合、样本量和目标分布，表格用于窗口设置对比，不能据此单独证明模型结构的优势或确定部署时的最佳窗口。
+
+MAPE 按当前评估代码过滤 `|ΔSOC| ≤ 0.05` 的样本后计算；它不是所有测试样本上的无条件 MAPE。MAE、RMSE 与 MAPE 分母的具体口径见[结果说明](docs/RESULTS.md)。
+
+## 仓库实际提供内容
+
+```text
+ev_soc_predict_large/
+├── configs/                  # 七种窗口配置、模型与训练配置
 ├── src/
-│   ├── main.py                 # 训练入口
-│   ├── dataset.py              # PyTorch Dataset + DataLoader
-│   ├── trainer.py              # 训练循环 (早停 / 检查点 / 评估)
-│   ├── models/
-│   │   └── lstm_transformer.py # 核心模型: LSTM → Transformer
-│   ├── dataprocess/
-│   │   ├── compute_feature.py  # 特征工程 (→ 35 维)
-│   │   ├── time_segment.py     # 时间窗口滑窗切分
-│   │   └── build_dataset.py    # 数据集构建 (标准化 / 划分)
-│   └── analysis/               # 可视化与分析脚本 (15+)
-├── data/
-│   ├── raw/                    # 原始数据
-│   ├── aligned/                # 对齐后数据
-│   ├── processed/              # feature_data.csv (123785×35)
-│   ├── split/                  # 时间片段索引 (.npz)
-│   └── train/                  # 训练数据集 (split_200s ~ split_1500s)
-├── models/                     # 7 窗口已训练模型 (.pt)
-├── plots/                      # 可视化产出 (40+ 张图)
-└── logs/                       # 训练日志 + 实验记录
+│   ├── main.py               # 训练入口
+│   ├── dataset.py            # Dataset 与 DataLoader
+│   ├── trainer.py            # 训练、检查点与评估
+│   ├── models/               # LSTM–Transformer
+│   ├── dataprocess/          # 特征处理、片段切分、数据集构建
+│   └── analysis/             # 结果绘制与分析脚本
+├── models/                   # best_model.pt 及两个历史备份
+├── plots/                    # 五张历史结果图
+├── logs/                     # 原始训练日志与实验记录
+├── results/                  # 可追溯的窗口指标汇总
+├── docs/                     # 结果来源与使用限制
+└── requirements.txt
 ```
 
----
+`models/best_model.pt` 的文件名不能确定其窗口与实验轮次，本次未加载权重核验；不将其描述为七窗口完整模型集。原始训练日志和历史 CSV 保留原样，包括当时使用的大小写。
 
-## 数据流水线
+## 方法与输入
 
-```
-原始 CSV → [compute_feature.py] → feature_data.csv (123785×35)
-         → [time_segment.py]    → origin_{N}s.npz (片段索引)
-         → [build_dataset.py]   → train/val/test_data.npz + scaler.npz
-         → [main.py]            → 模型训练
-```
-
----
-
-## 模型架构
-
-```
+```text
 Input (B, T, 17)
-  → LSTM (2 层, 双向, hidden=128) → (B, T, 256)
-  → Linear + LayerNorm + Dropout → (B, T, 128)
+  → 双向 LSTM（2 层，hidden=128）
+  → Linear + LayerNorm + Dropout
   → PositionalEncoding
-  → TransformerEncoder ×3 (nhead=8, FFN=512)
-  → Global Mean Pooling → (B, 128)
-  → y_main (ΔSoC, 训练目标)
-  → y_aux  (总能量, 仅监控)
+  → TransformerEncoder（3 层，nhead=8，FFN=512）
+  → Global Mean Pooling
+  → 主任务：ΔSOC
+  → 辅助输出：窗口内 power 求和（不参与训练损失）
 ```
 
-- 总参数量: **~1.17M** (固定，不随窗口变化)
-- Loss: L1Loss (MAE)
-- 优化器: AdamW (lr=1e-3, wd=1e-5)
-- 调度器: ReduceLROnPlateau (patience=5)
-- 早停: patience=20, 梯度裁剪: max_norm=10.0
+模型参数量为 **1,174,018**，与保存的训练日志一致。窗口对比实验使用 L1 主任务损失；当前训练配置为 AdamW、学习率 1e-3、权重衰减 1e-5、ReduceLROnPlateau（patience=5）、早停 patience=20、梯度裁剪 max_norm=10。
 
----
+17 维输入包括速度及其差分、里程差分、窗口速度统计量、温湿度及能见度和风速统计量、驾驶模式比例、巡航比例、总电压、总电流及功率。完整顺序见 [build_dataset.py](src/dataprocess/build_dataset.py)。
 
-## 快速命令
+输入使用完整窗口内的电流、电压、功率等观测，双向 LSTM 也访问整个输入窗口，因此当前任务应理解为**已观测窗口的 SOC 变化估计**。仓库没有提供仅依靠窗口开始前信息预测未来消耗的验证。
+
+## 数据处理与评估边界
+
+原始 CSV → 特征工程 → 时间片段索引 → train/val/test 数据与标准化参数 → 模型训练与评估。
+
+当前数据集构建代码采用随机种子 42，将片段打散后按 70% / 15% / 剩余样本划分；输入标准化统计量由训练集计算。窗口配置使用半窗口步长，片段可能重叠。由于划分没有按行程或车辆隔离，同一行程乃至重叠片段可能分布在不同集合中，现有指标不能作为独立行程或独立车辆泛化性能的证明。
+
+## 已保留图片
+
+[窗口 R² 趋势](plots/01_r2_trend.png) · [线性基线比较](plots/04_lstm_vs_linear.png) · [相关性趋势](plots/05_correlation_trend.png) · [速度聚类](plots/11_speed_kmeans.png) · [速度聚类箱线图](plots/11_speed_kmeans_box.png)
+
+图片为历史产物，未在本次整理中重新生成。趋势图中的机制解释和基线比较需结合原始实验条件审慎理解；线性基线使用平均功率单特征，与混合模型的完整输入不同，不能将差异全部归因于网络结构。当前以日志及结果汇总表为指标依据。
+
+## 分段行程分析
+
+仓库保留了 [plot_10_chain_concat.py](src/analysis/plot_10_chain_concat.py)。该脚本对七条行程分别初始化预测，再通过 SOC 偏移拼接显示；**每段均使用真实起始 SOC**，不是仅在首段初始化一次的连续长时验证。
+
+原 README 中的“12.9 小时”“0.58% 相对误差”等结果缺少随仓库保存的对应输出或评估记录，未纳入本页已核实结果。该脚本的相对误差定义是“预测点 SOC 的 MAE ÷ 拼接轨迹总 SOC 下降量 × 100%”，不是 MAPE。
+
+脚本还存在需要重新验证的下降量符号、窗口终点对齐及预处理一致性问题，详见[结果说明](docs/RESULTS.md)。本次仅整理呈现，没有修改其计算逻辑或生成新的性能结果。
+
+## 查看与运行
+
+直接浏览 `results/window_metrics.csv`、`logs/` 和 `plots/` 即可查看保存结果。
+
+如具备缺失的数据和参数，可在仓库根目录准备环境：
 
 ```bash
-# 连接远程服务器
-ssh -p 47501 root@connect.westd.seetacloud.com
-
-# 激活 GPU 环境
-source /root/miniconda3/etc/profile.d/conda.sh && conda activate torch_gpu
-
-# 数据流水线 (以 800s 为例)
-python3 src/dataprocess/time_segment.py --window 800
-python3 src/dataprocess/build_dataset.py --window 800
-python3 src/main.py --window 800
-
-# 可视化
-python3 src/analysis/run_all.py                   # 静态图
-python3 src/analysis/plot_10_chain_prediction.py  # 链式预测 (需 GPU)
-python3 src/analysis/plot_06_scatter.py           # 散点图 (需 GPU)
-python3 src/analysis/plot_07_residuals.py         # 残差图 (需 GPU)
-
-# 查看结果
-cat logs/experiment_log.csv
-ls plots/
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
 ```
 
----
+`requirements.txt` 是宽松依赖清单，不是经过本次验证的锁定环境。PyTorch 与 CUDA 版本应按实际硬件选择；原实验环境不能作为其他硬件运行成功的保证。
 
-## 7 窗口消融实验结果
+以下命令仅展示历史处理入口，需要先准备符合代码字段要求的输入数据并检查各脚本路径：
 
-| 窗口 | 样本数 | Test R² | Test MAE | MAPE | 备注 |
-|:-----|:------:|:-------:|:--------:|:----:|:-----|
-| S200 | 7,782 | 0.7885 | 0.0853 | 22.26% | |
-| S400 | 3,496 | 0.8245 | 0.1374 | 22.09% | 默认 |
-| S600 | 2,117 | 0.8618 | 0.1716 | 21.08% | |
-| S800 | 1,453 | 0.9204 | 0.1858 | 18.68% | **性价比拐点** |
-| S1000 | 1,066 | 0.9154 | 0.2230 | 16.68% | MAPE 最优 |
-| S1200 | 812 | 0.9247 | 0.2614 | 19.14% | |
-| S1500 | 574 | **0.9519** | 0.2359 | 24.95% | **R² 最优** |
+```bash
+python src/dataprocess/time_segment.py --window 800
+python src/dataprocess/build_dataset.py --window 800
+python src/main.py --window 800
+```
 
----
+分析脚本部分仍包含原服务器绝对路径；散点图、残差图及分段预测还需要对应窗口权重、数据和标准化参数。当前不提供“下载仓库即可完整复现”的承诺。
 
-## 17 维输入特征
+## 限制与材料说明
 
-`speed, speed_diff, mileage_diff, speed_window20_mean/std, speed_diff_window20_mean, temperature_c/relative_humidity/visibility_km/wind_speed_ms_window20_mean, Low/Mid/High (驾驶模式), cruising_ratio, total_volt, total_current, power`
-
-> power 和 total_current 特征贡献度 >76%
-
----
-
-## 链式预测
-
-在完整行程上滑动窗口逐段预测 ΔSoC 并累加，重建 SoC 变化曲线。
-
-- **最优策略**: stride=150 (全窗口无重叠)，每 25 分钟更新一次
-- **单 trip**: Trip #1159 (4h, ΔSoC=7.99%), 相对误差 3.6%
-- **多段拼接**: 7 trips × 12.9h (SoC 100%→36%), 全局相对误差 **0.58%**
-
----
-
-## 环境说明
-
-| 项目 | 系统默认 | torch_gpu (conda) |
-|:-----|:---------|:------------------|
-| Python | 3.8.10 | 3.10.20 |
-| PyTorch | 2.4.1+cu121 | **2.11.0+cu130** |
-| GPU | 不可用 | RTX 5090 可用 |
-
-> 运行 GPU 脚本前必须 `conda activate torch_gpu`
-
----
-
-## 已知问题
-
-1. **GPU 环境**: 系统默认 Python 3.8 不兼容 RTX 5090，需使用 conda `torch_gpu` 环境
-2. **链式预测仅 S1500**: S800 对比待做
-3. **单 trip 时长有限**: 最长连续行程约 4.6h，已通过多段拼接方案解决
+- 未提供原始数据及完整预处理产物，数据来源、获取方式和使用权限仍需补充。
+- 结果为已保存单次实验记录，未提供多随机种子统计与独立行程 / 车辆隔离评估。
+- 未保存完整七窗口权重及对应的可执行推理材料。
+- 特征重要性依赖分析方法、模型和评估数据，不解释为因果贡献；现有文本报告不能支持原先“power 与 total_current 贡献度 >76%”的概括。
+- 当前未附 LICENSE；本次整理没有替作者选择许可证。

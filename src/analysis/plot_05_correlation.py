@@ -1,6 +1,6 @@
 """
 Plot 05: Feature-Label Correlation & LSTM R²
-Dual-axis: avg_power vs ΔSoC correlation (line) + LSTM R² (bars).
+Dual-axis: avg_power vs ΔSOC correlation (line) + LSTM R² (bars).
 """
 import matplotlib.pyplot as plt
 from plot_utils import OUTPUT_DIR, WINDOWS, W_LABELS, x, M, C, CORR_AP
@@ -10,7 +10,7 @@ def plot_corr():
     fig, ax1 = plt.subplots(figsize=(10, 6))
     cvals = [CORR_AP[w] for w in WINDOWS]
     r2 = [M[w]["r2"] for w in WINDOWS]
-    ax1.plot(x, cvals, "s-", color=C["corr"], lw=2.5, ms=10, label="avg_power vs ΔSoC corr")
+    ax1.plot(x, cvals, "s-", color=C["corr"], lw=2.5, ms=10, label="avg_power vs ΔSOC corr")
     ax1.set_ylabel("Correlation", color=C["corr"])
     ax1.tick_params(axis="y", labelcolor=C["corr"])
     ax1.set_xticks(x)

@@ -2,7 +2,7 @@
 Plot 02: All Metrics Comparison — split into 3 separate files.
   - 02a: R² + MAPE
   - 02b: MAE + RMSE (original)
-  - 02c: Normalized MAE + Normalized RMSE (÷ΔSoC std)
+  - 02c: Normalized MAE + Normalized RMSE (÷ΔSOC std)
 """
 import sys, warnings
 from pathlib import Path
@@ -66,7 +66,7 @@ def plot_metrics():
     )
     print("  [2b] 02b_mae_rmse.png")
 
-    # ---- File c: Normalized MAE + Normalized RMSE (/Delta SoC std) ----
+    # ---- File c: Normalized MAE + Normalized RMSE (/Delta SOC std) ----
     _plot_pair(
         [
             ([M[w]["mae"] / M[w]["ys"] for w in WINDOWS],
@@ -75,7 +75,7 @@ def plot_metrics():
              "Normalized RMSE", "norm_rmse", C["rmse"]),
         ],
         "02c_norm_mae_rmse.png",
-        "Normalized MAE and RMSE (÷ΔSoC std)",
+        "Normalized MAE and RMSE (÷ΔSOC std)",
     )
     print("  [2c] 02c_norm_mae_rmse.png")
 

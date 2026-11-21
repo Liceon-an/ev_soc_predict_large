@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Run all active ablation study visualization plots.
+Run archived window-comparison visualization plots.
 Excludes: 06_scatter, 07_residuals (require GPU inference).
 """
 import sys, warnings
@@ -30,7 +30,7 @@ from plot_05_correlation import plot_corr
 
 def main():
     print("=" * 50)
-    print("  EV SoC Ablation — Visualization")
+    print("  EV SOC Window Comparison — Visualization")
     print("=" * 50)
 
     # Static plots (no GPU needed)

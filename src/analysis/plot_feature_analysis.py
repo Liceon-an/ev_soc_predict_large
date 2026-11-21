@@ -4,8 +4,8 @@
 
 生成图表:
   12_feature_corr_heatmap.png    — 特征间相关热力图
-  12_feature_target_corr.png     — 各特征与 ΔSoC 相关性排序
-  12_top_features_scatter.png    — Top 6 特征 vs ΔSoC 散点图
+  12_feature_target_corr.png     — 各特征与 ΔSOC 相关性排序
+  12_top_features_scatter.png    — Top 6 特征 vs ΔSOC 散点图
   13_permutation_importance.png  — Permutation Importance 排序
   14_group_importance.png        — 特征组贡献排序
   15_summary_dashboard.png       — 综合仪表盘
@@ -55,7 +55,7 @@ FEATURE_PALETTE = [GROUP_PALETTE.get(FEAT_TO_GROUP.get(f, "Other"), "#607D8B")
 
 
 # ════════════════════════════════════════════════════════
-# Phase 1: 特征-ΔSoC 相关性分析
+# Phase 1: 特征-ΔSOC 相关性分析
 # ════════════════════════════════════════════════════════
 
 def plot_corr_heatmap(corr_matrix, feature_names, output_path):
@@ -95,9 +95,9 @@ def plot_corr_heatmap(corr_matrix, feature_names, output_path):
 
 def plot_feature_target_corr(corr_df_sorted, output_path):
     """
-    图2: 各特征与 ΔSoC 的 Spearman 相关系数排序.
+    图2: 各特征与 ΔSOC 的 Spearman 相关系数排序.
     目的: 快速识别与预测目标最相关/最不相关的特征.
-    解读: 正值 → 特征增大时 ΔSoC 增大；负值 → 相反.
+    解读: 正值 → 特征增大时 ΔSOC 增大；负值 → 相反.
           |r| > 0.3 通常表示有意义的线性关联.
     """
     df = corr_df_sorted.copy()
@@ -123,8 +123,8 @@ def plot_feature_target_corr(corr_df_sorted, output_path):
     ax.set_yticks(range(len(df)))
     ax.set_yticklabels(df["feature"].values, fontsize=10)
     ax.axvline(0, color="black", linewidth=1)
-    ax.set_xlabel("Spearman Correlation with ΔSoC", fontsize=12)
-    ax.set_title("Feature vs ΔSoC — Spearman Correlation", fontsize=14)
+    ax.set_xlabel("Spearman Correlation with ΔSOC", fontsize=12)
+    ax.set_title("Feature vs ΔSOC — Spearman Correlation", fontsize=14)
 
     # 图例
     from matplotlib.patches import Patch
@@ -143,7 +143,7 @@ def plot_feature_target_corr(corr_df_sorted, output_path):
 
 def plot_top_features_scatter(pooled, y_test, corr_df_sorted, output_path):
     """
-    图3: Top 6 特征 vs ΔSoC 散点图 + 回归线.
+    图3: Top 6 特征 vs ΔSOC 散点图 + 回归线.
     目的: 直观展示相关性最强的特征与目标的关系形态（线性/非线性/异常点）.
     解读: 每个点 = 一个测试样本；蓝线 = 线性拟合趋势；
           观察是否单调、是否有离群簇、是否有天花板/地板效应.
@@ -173,11 +173,11 @@ def plot_top_features_scatter(pooled, y_test, corr_df_sorted, output_path):
         except Exception:
             pass
         ax.set_xlabel(f"{feat_name}", fontsize=10)
-        ax.set_ylabel("ΔSoC", fontsize=10)
+        ax.set_ylabel("ΔSOC", fontsize=10)
         ax.set_title(f"{feat_name} vs ΔSoC", fontsize=11)
         ax.legend(fontsize=8)
 
-    fig.suptitle("Top 6 Features vs ΔSoC (with Linear Trend)", fontsize=15, y=1.02)
+    fig.suptitle("Top 6 Features vs ΔSOC (with Linear Trend)", fontsize=15, y=1.02)
     fig.tight_layout()
     fig.savefig(output_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
@@ -317,7 +317,7 @@ def plot_summary_dashboard(corr_df_sorted, imp_df, gdf, output_path):
     """
     图6: 综合仪表盘 — 四合一视图.
     布局:
-      左上: 特征-ΔSoC 相关性 (Top 8)
+      左上: 特征-ΔSOC 相关性 (Top 8)
       右上: Permutation Importance (Top 8)
       左下: 特征组贡献 (绝对)
       右下: 总结表格/文字
@@ -336,7 +336,7 @@ def plot_summary_dashboard(corr_df_sorted, imp_df, gdf, output_path):
     ax.set_yticklabels(top8_corr["feature"].values, fontsize=9)
     ax.axvline(0, color="black", linewidth=1)
     ax.set_xlabel("Spearman r")
-    ax.set_title("Top 8: Correlation with ΔSoC", fontsize=12)
+    ax.set_title("Top 8: Correlation with ΔSOC", fontsize=12)
     ax.invert_yaxis()
 
     # ── 右上: Permutation Importance Top 8 ──

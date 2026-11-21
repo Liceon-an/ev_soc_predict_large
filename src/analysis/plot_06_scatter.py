@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Plot 06: Predicted vs True ΔSoC Scatter — 7 models, per-window inference.
+Plot 06: Predicted vs True ΔSOC Scatter — 7 models, per-window inference.
 Layout: row 1 = 4 subplots, row 2 = 3 subplots centered.
 """
 import sys, warnings
@@ -113,15 +113,15 @@ def plot_scatter():
         ax.plot([lo, hi], [lo, hi], "r--", linewidth=1.2, alpha=0.7)
         ax.set_xlim(lo, hi)
         ax.set_ylim(lo, hi)
-        ax.set_xlabel("True ΔSoC")
-        ax.set_ylabel("Predicted ΔSoC")
+        ax.set_xlabel("True ΔSOC")
+        ax.set_ylabel("Predicted ΔSOC")
         ax.set_title(f"{w}s  R²={r2:.4f}  MAE={mae:.4f}", fontsize=12, fontweight="bold")
         ax.set_aspect("equal")
 
         del model
         torch.cuda.empty_cache()
 
-    fig.suptitle("Predicted vs True ΔSoC (7 models)", fontsize=18, fontweight="bold", y=1.01)
+    fig.suptitle("Predicted vs True ΔSOC (7 models)", fontsize=18, fontweight="bold", y=1.01)
     fig.savefig(OUTPUT_DIR / "06_scatter_comparison.png", bbox_inches="tight", dpi=150)
     plt.close(fig)
     print("[plot_06]  Done → plots/06_scatter_comparison.png")

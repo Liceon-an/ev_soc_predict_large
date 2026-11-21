@@ -106,7 +106,7 @@ ax2.legend(
 )
 ax2.set_title("Minor Groups Breakdown", fontsize=14, fontweight="bold", pad=20)
 
-fig.suptitle("EV SoC Model -- Feature Group Contribution (S1500, n=123)",
+fig.suptitle("EV SOC Model -- Feature Group Contribution (S1500, n=123)",
              fontsize=15, fontweight="bold", y=1.02)
 plt.tight_layout()
 outdir = _PROJECT_ROOT / "plots"

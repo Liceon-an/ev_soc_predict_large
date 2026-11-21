@@ -1,5 +1,5 @@
 """
-EV SoC 预测 - 训练入口
+EV SOC 预测 - 训练入口
 
 用法:
   cd /root/code/ev_soc_predict && python src/main.py
@@ -49,7 +49,7 @@ def resolve_device(cfg) -> str:
 def print_config_summary():
     """打印配置摘要"""
     print("=" * 60)
-    print("  EV SoC 预测 - LSTM-Transformer")
+    print("  EV SOC 预测 - LSTM-Transformer")
     print("=" * 60)
     mc = model_config
     print(
@@ -75,7 +75,7 @@ def print_config_summary():
 def main():
     import argparse
 
-    parser = argparse.ArgumentParser(description="EV SoC 预测训练")
+    parser = argparse.ArgumentParser(description="EV SOC 预测训练")
     parser.add_argument("--window", type=str, default="400",
                         help="窗口大小(秒)，如 200/400/600/800 (默认: 400)")
     args = parser.parse_args()
@@ -122,7 +122,7 @@ def main():
     print("  训练完成 - 测试集结果")
     print("=" * 60)
     print(
-        "  ΔSoC(MAE):  %.4f  |  RMSE: %.4f  |  R2: %.4f"
+        "  ΔSOC(MAE):  %.4f  |  RMSE: %.4f  |  R2: %.4f"
         % (
             test_metrics["main_mae"],
             test_metrics["main_rmse"],

@@ -1,5 +1,5 @@
 """
-Shared constants and data for all ablation study plots.
+Shared constants and data for window-comparison plots.
 """
 from pathlib import Path
 import numpy as np
@@ -11,7 +11,7 @@ WINDOWS = [200, 400, 600, 800, 1000, 1200, 1500]
 W_LABELS = [f"{w}s" for w in WINDOWS]
 x = np.array(WINDOWS)
 
-# Experiment results: 7-window ablation
+# Experiment results: 7-window comparison; test metrics verified against results/window_metrics.csv
 M = {
     200:  {"r2": 0.7744, "mae": 0.0864, "rmse": 0.1665, "mape": 20.73, "n": 7782,  "ym": 0.3405, "ys": 0.3377, "cov": 94.4},
     400:  {"r2": 0.8285, "mae": 0.1327, "rmse": 0.2501, "mape": 21.36, "n": 3496,  "ym": 0.6788, "ys": 0.5918, "cov": 86.7},

@@ -2,7 +2,7 @@
 PyTorch Dataset / DataLoader 构建
 
 从 build_dataset.py 产出的 .npz 文件加载数据。
-每个样本: X=(40,14) 特征序列, y_main=总能量, y_aux=ΔSoC
+每个样本: X=(T,17) 特征序列, y_main=ΔSOC, y_aux=功率求和（仅监控）
 """
 
 from pathlib import Path
@@ -13,7 +13,7 @@ from torch.utils.data import Dataset, DataLoader
 
 
 class SocDataset(Dataset):
-    """EV SoC 预测数据集"""
+    """EV SOC 预测数据集"""
 
     def __init__(self, data_dir: str, split: str = "train", y_mean: float = None, y_std: float = None):
         """
@@ -26,7 +26,7 @@ class SocDataset(Dataset):
             raise FileNotFoundError(f"数据集文件不存在: {path}")
 
         data = np.load(path)
-        self.X = torch.from_numpy(data["X"]).float()  # (N, T=40, F=14)
+        self.X = torch.from_numpy(data["X"]).float()  # (N, T, F=17)
         self.y_main = torch.from_numpy(data["y_main"]).float()  # (N,)
         self.y_aux = torch.from_numpy(data["y_aux"]).float()  # (N,)
         # Z-score 归一化 y_main
